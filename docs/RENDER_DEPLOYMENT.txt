@@ -1,0 +1,165 @@
+AKOOL Livestream Faceswap -- Render Deployment Guide
+======================================================
+
+This guide covers deploying the project to Render (free tier)
+and updating the live deployment after making code changes.
+
+
+PREREQUISITES
+-------------
+  - A GitHub account with the repository pushed
+      https://github.com/AngeloJamesRomerosa/AI_Livestreaming_AKOOL_Render
+  - A Render account (free tier is sufficient)
+      Sign up: https://render.com
+  - Your AKOOL API Key or Client ID + Client Secret
+
+
+===============================================================================
+PART 1 -- FIRST-TIME DEPLOYMENT
+===============================================================================
+
+STEP 1 -- CONNECT GITHUB TO RENDER
+-------------------------------------
+  1. Log in to https://render.com
+  2. Click "New +" --> "Web Service"
+  3. Click "Connect a repository"
+  4. If not already connected, click "Connect GitHub" and authorize Render
+  5. Search for and select:  AI_Livestreaming_AKOOL_Render
+
+
+STEP 2 -- CONFIGURE THE SERVICE
+---------------------------------
+Fill in the following settings:
+
+  Name           : akool-livestream  (or any name you prefer)
+  Region         : Pick the closest to your location
+  Branch         : main
+  Runtime        : Docker            ← IMPORTANT: select Docker, not Python
+  Instance Type  : Free
+
+Leave all other settings at their defaults.
+
+
+STEP 3 -- SET ENVIRONMENT VARIABLES
+--------------------------------------
+Scroll down to the "Environment Variables" section and add:
+
+  Key                    Value
+  ---------------------  -------------------------------------------
+  AKOOL_API_KEY          your_api_key_here
+    -- OR --
+  AKOOL_CLIENT_ID        your_client_id_here
+  AKOOL_CLIENT_SECRET    your_client_secret_here
+
+  PUBLIC_BASE_URL        https://your-service-name.onrender.com
+
+  NOTE: Set PUBLIC_BASE_URL to your Render service URL.
+  You can find this after the first deploy on the service dashboard.
+  If you do not know it yet, set it now with your expected service
+  name and update it after the first deploy (see Step 5).
+
+
+STEP 4 -- DEPLOY
+-----------------
+  1. Click "Create Web Service"
+  2. Render will pull your repo and build the Docker image.
+     This takes 3-5 minutes on first deploy.
+  3. Watch the deploy log for:
+       INFO: Uvicorn running on http://0.0.0.0:10000
+     That means the server started successfully.
+
+
+STEP 5 -- UPDATE PUBLIC_BASE_URL
+----------------------------------
+After deploy completes:
+  1. Your service URL is shown at the top of the dashboard, e.g.:
+       https://akool-livestream.onrender.com
+  2. Go to: Dashboard --> your service --> Environment
+  3. Update PUBLIC_BASE_URL to match that URL exactly
+  4. Click "Save Changes" -- Render will automatically redeploy
+
+
+STEP 6 -- VERIFY
+-----------------
+Open your service URL in Chrome, e.g.:
+  https://akool-livestream.onrender.com
+
+Test the health check endpoints:
+  /api/authStatus          --> should return JSON
+  /api/stream-profiles     --> should return quality presets
+  /api/provider/list       --> should return [{ "id": "akool" }]
+
+Then follow the full usage guide in CLIENT_DOCUMENTATION.txt.
+
+
+FREE TIER NOTES
+---------------
+  - 512MB RAM limit -- works fine (no server-side MediaPipe or Playwright)
+  - Spins down after 15 minutes of inactivity
+  - First request after idle takes ~30 seconds to wake up
+  - No persistent disk -- uploaded face images are stored in memory only
+    (they are lost if the service restarts; re-upload each session)
+
+
+===============================================================================
+PART 2 -- UPDATING THE DEPLOYMENT
+===============================================================================
+
+Render automatically redeploys every time you push to the main branch.
+No manual steps needed in the Render dashboard.
+
+
+STANDARD UPDATE WORKFLOW
+--------------------------
+  1. Make your changes locally (edit files, fix bugs, add features)
+
+  2. Test locally first:
+       python app.py
+       Open http://localhost:8000 and verify the change works
+
+  3. Commit and push to GitHub:
+       git add <changed files>
+       git commit -m "description of what you changed"
+       git push
+
+  4. Render detects the push and starts a new deploy automatically.
+     Watch the deploy log in the Render dashboard.
+     Deploy usually takes 2-4 minutes.
+
+  5. Once deploy shows "Live", open your Render URL and verify.
+
+
+WATCHING THE DEPLOY LOG
+------------------------
+  Render Dashboard --> your service --> "Deploys" tab
+  Click the latest deploy to see the build + startup log.
+
+  A successful deploy ends with:
+    INFO: Uvicorn running on http://0.0.0.0:10000
+
+  A failed deploy shows the error in red -- read the log to diagnose.
+
+
+MANUAL REDEPLOY (WITHOUT A CODE CHANGE)
+-----------------------------------------
+If you need to restart the service (e.g. to pick up a new env var):
+  Render Dashboard --> your service --> "Manual Deploy" --> "Deploy latest commit"
+
+
+UPDATING ENVIRONMENT VARIABLES
+--------------------------------
+  Render Dashboard --> your service --> "Environment" tab
+  Edit the value --> "Save Changes"
+  Render will automatically redeploy with the new values.
+
+
+COMMON DEPLOY ERRORS
+---------------------
+  Error                             Fix
+  --------------------------------  ----------------------------------------
+  Build fails: pip install error    Check requirements.txt for bad package
+  Container exits immediately       Check deploy log for Python import errors
+  404 on all routes                 Check app.py router registration
+  Face upload returns 422           PUBLIC_BASE_URL not set or wrong value
+  Auth fails with 500               AKOOL_API_KEY or credentials not set
+  Service URL shows Render error    Service still spinning up -- wait 30s

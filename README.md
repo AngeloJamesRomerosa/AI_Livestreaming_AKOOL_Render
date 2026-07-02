@@ -26,39 +26,10 @@ The browser handles all heavy lifting: Agora camera publish, faceswap receive, M
 
 ---
 
-## Setup
+## Setup & Deployment
 
-**Local dev:**
-```bash
-pip install -r requirements.txt
-python app.py
-# Open http://localhost:8000
-```
-
-**Docker local:**
-```bash
-docker compose up --build
-```
-
-**Required environment variables:**
-
-| Variable | Description |
-|---|---|
-| `AKOOL_API_KEY` | Your AKOOL API key |
-| `AKOOL_CLIENT_ID` | AKOOL Client ID (alternative to API key) |
-| `AKOOL_CLIENT_SECRET` | AKOOL Client Secret (used with Client ID) |
-| `PUBLIC_BASE_URL` | Public URL of your deployment (e.g. `https://your-app.onrender.com`) — required so AKOOL can fetch uploaded face images |
-
-Set either `AKOOL_API_KEY` **or** `AKOOL_CLIENT_ID` + `AKOOL_CLIENT_SECRET`.
-
----
-
-## Deploying to Render
-
-1. Fork this repo and create a **Web Service** on [Render](https://render.com) pointing to it.
-2. Set **Runtime** to Docker.
-3. Add the environment variables above under **Environment**.
-4. Deploy — the free tier (512 MB RAM) works because there is no server-side Playwright or MediaPipe.
+- [Local Setup Guide](docs/LOCAL_SETUP.txt) — clone, install, configure `.env`, run at `localhost:8000`
+- [Render Deployment Guide](docs/RENDER_DEPLOYMENT.txt) — first-time deploy and updating the live service
 
 ---
 
