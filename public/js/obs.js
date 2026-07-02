@@ -82,7 +82,8 @@ function _startObsStream() {
   _obsCtx = _obsCanvas.getContext('2d');
 
   const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
-  _obsWs = new WebSocket(`${proto}://${window.location.host}/ws/stream-out`);
+  const sid   = session?._id || '';
+  _obsWs = new WebSocket(`${proto}://${window.location.host}/ws/stream-out?sid=${sid}`);
   _obsWs.binaryType = 'arraybuffer';
 
   _obsWs.onopen = () => {
