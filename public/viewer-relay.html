@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AKOOL Faceswap — OBS Output</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; overflow: hidden; width: 100vw; height: 100vh; }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    #waiting {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: rgba(255,255,255,0.3);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 13px;
+      pointer-events: none;
+      transition: opacity 0.4s;
+    }
+    #waiting.hidden { opacity: 0; }
+    #waiting svg { opacity: 0.2; }
+  </style>
+</head>
+<body>
+  <!-- Canvas fills the page — OBS captures it directly, no captureStream buffer -->
+  <canvas id="c"></canvas>
+
+  <div id="waiting">
+    <svg width="44" height="44" fill="none" viewBox="0 0 24 24" stroke="white">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
+        d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14
+           M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+    </svg>
+    Waiting for AI faceswap stream…
+  </div>
+
+  <script>
+    const canvas  = document.getElementById('c');
+    const ctx     = canvas.getContext('2d');
+    const waiting = document.getElementById('waiting');
+
+    // ── Memory thresholds ─────────────────────────────────────────
+    const MEM_THROTTLE = 280 * 1024 * 1024; // Fix 3: throttle begins
+    const MEM_RESET    = 330 * 1024 * 1024; // Fix 4: soft reset
+    const MEM_RELOAD   = 384 * 1024 * 1024; // Fix 5: full reload
+
+    // ── State ─────────────────────────────────────────────────────
+    // Monotonic counter — createImageBitmap is async so frames can decode
+    // out of order. We only draw the frame if no newer one has arrived yet.
+    let _latestSeq      = 0;
+    let _pendingDecodes = 0;  // Fix 2: track concurrent decodes
+    let _frameCounter   = 0;
+    let _throttleRate   = 1; // Fix 3: accept every Nth frame
+    let _lastSoftReset  = 0; // Fix 4: cooldown timestamp
+    let ws              = null; // module-level so _softReset can close it
+
+    // ── Log relay ─────────────────────────────────────────────────
+    function _relayLog(msg, level) {
+      console.warn('[viewer-relay]', msg);
+      fetch('/api/relay-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ msg: '[OBS Relay] ' + msg, level: level || 'warn' }),
+      }).catch(() => {});
+    }
+
+    // ── Fix 5: restore freeze frame saved before last reload ──────
+    const _savedFrame = sessionStorage.getItem('obs_freeze_frame');
+    if (_savedFrame) {
+      sessionStorage.removeItem('obs_freeze_frame');
+      const img = new Image();
+      img.onload = () => {
+        canvas.width  = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        ctx.drawImage(img, 0, 0);
+        waiting.classList.add('hidden');
+      };
+      img.src = _savedFrame;
+    }
+
+    // ── Fix 4: soft reset — close WS, keep canvas, reconnect fast ─
+    function _softReset() {
+      _pendingDecodes = 0;
+      _latestSeq      = 0;
+      _frameCounter   = 0;
+      _throttleRate   = 1;
+      if (ws) {
+        ws.onclose = null;
+        ws.onerror = null;
+        ws.close();
+        ws = null;
+      }
+      setTimeout(connect, 500);
+    }
+
+    // ── Memory monitor: escalates Fix 3 → Fix 4 → Fix 5 ──────────
+    function _updateMemory() {
+      const mem = performance?.memory?.usedJSHeapSize ?? 0;
+      const mb  = Math.round(mem / (1024 * 1024));
+
+      if (mem >= MEM_RELOAD) {
+        // Fix 5: save last frame, full reload
+        _relayLog('Fix 5: memory critical (' + mb + 'MB ≥ ' + Math.round(MEM_RELOAD / (1024*1024)) + 'MB) — full page reload triggered', 'error');
+        sessionStorage.setItem('obs_freeze_frame', canvas.toDataURL('image/jpeg', 0.85));
+        setTimeout(() => location.reload(), 300);
+        return;
+      }
+
+      if (mem >= MEM_RESET) {
+        // Fix 4: soft reset with 30s cooldown
+        const now = Date.now();
+        if (now - _lastSoftReset > 30000) {
+          _lastSoftReset = now;
+          _relayLog('Fix 4: memory high (' + mb + 'MB ≥ ' + Math.round(MEM_RESET / (1024*1024)) + 'MB) — soft reset triggered', 'warn');
+          _softReset();
+        }
+        return;
+      }
+
+      if (mem >= MEM_THROTTLE) {
+        // Fix 3: gradual frame throttle between 280–330MB
+        const ratio   = (mem - MEM_THROTTLE) / (MEM_RESET - MEM_THROTTLE);
+        const newRate = Math.ceil(1 + ratio * 4); // 1→5 across the range
+        if (newRate !== _throttleRate) {
+          _throttleRate = newRate;
+          _relayLog('Fix 3: memory elevated (' + mb + 'MB) — accepting 1 of every ' + newRate + ' frames', 'warn');
+        }
+      } else if (_throttleRate !== 1) {
+        // Memory recovered — restore full frame rate
+        _throttleRate = 1;
+        _relayLog('Fix 3: memory recovered (' + mb + 'MB) — full frame rate restored', 'info');
+      }
+    }
+
+    setInterval(_updateMemory, 5000);
+
+    // ── WebSocket connection ───────────────────────────────────────
+    function connect() {
+      const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+      ws = new WebSocket(`${proto}://${location.host}/ws/stream-in`);
+      ws.binaryType = 'arraybuffer';
+
+      ws.onmessage = e => {
+        if (e.data.byteLength === 0) return; // keepalive ping — skip
+
+        // Fix 2: cap pending decodes at 3 — prevents memory buildup in CEF
+        // over long sessions that causes GC freezes and still frames
+        if (_pendingDecodes >= 3) return;
+
+        // Fix 3: frame throttle — drop frames when memory is elevated
+        _frameCounter++;
+        if (_frameCounter % _throttleRate !== 0) return;
+
+        const seq  = ++_latestSeq;
+        const blob = new Blob([e.data], { type: 'image/jpeg' });
+        _pendingDecodes++;
+        createImageBitmap(blob).then(bmp => {
+          _pendingDecodes--;
+          // Discard if a newer frame has already been drawn
+          if (seq !== _latestSeq) { bmp.close(); return; }
+          if (canvas.width !== bmp.width || canvas.height !== bmp.height) {
+            canvas.width  = bmp.width;
+            canvas.height = bmp.height;
+          }
+          ctx.drawImage(bmp, 0, 0);
+          bmp.close();
+          waiting.classList.add('hidden');
+        }).catch(() => { _pendingDecodes--; });
+      };
+
+      ws.onclose = () => {
+        waiting.classList.remove('hidden');
+        setTimeout(connect, 2000); // auto-reconnect after 2s
+      };
+
+      ws.onerror = () => ws.close();
+    }
+
+    connect();
+  </script>
+</body>
+</html>

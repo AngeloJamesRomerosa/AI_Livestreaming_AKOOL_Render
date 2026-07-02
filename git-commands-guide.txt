@@ -1,0 +1,142 @@
+GIT COMMANDS GUIDE
+==================
+A reference for the git workflow used in this project.
+
+
+1. CREATE A NEW FEATURE BRANCH
+-------------------------------
+Command:
+  git checkout -b feature/your-branch-name
+
+Explanation:
+  Creates a new branch and immediately switches to it.
+  The -b means "create and switch."
+  Always do this before starting new work so changes don't go directly to main.
+
+Example:
+  git checkout -b feature/obs-relay-vcam-optimizations-ultrafast-preset
+
+
+2. CHECK WHAT FILES CHANGED
+-----------------------------
+Command:
+  git status
+
+Explanation:
+  Shows which files were modified, which are new (untracked),
+  and which are staged (ready to commit).
+  Run this before every commit to make sure you're committing the right things.
+
+
+3. STAGE SPECIFIC FILES FOR COMMIT
+------------------------------------
+Command:
+  git add filename.js another-file.html
+
+Explanation:
+  Marks specific files to be included in the next commit.
+  Always name files explicitly.
+  Avoid "git add ." which can accidentally include files you don't want (like .env).
+
+Example:
+  git add public/js/vcam.js public/index.html routes/camera.py
+
+
+4. COMMIT WITH A MESSAGE
+--------------------------
+Command:
+  git commit -m "Your commit message here"
+
+Explanation:
+  Saves a snapshot of all staged files with a description of what changed and why.
+  The message is permanent — write it as if someone reading it in 6 months
+  needs to understand what you did.
+
+Example:
+  git commit -m "Disable Built-in Camera on remote servers with clear notice"
+
+
+5. SWITCH TO AN EXISTING BRANCH
+---------------------------------
+Command:
+  git checkout main
+
+Explanation:
+  Switches your working directory to the named branch.
+  Your files update to match that branch's state.
+  Replace "main" with any branch name you want to switch to.
+
+
+6. MERGE A FEATURE BRANCH INTO MAIN (NO FAST-FORWARD)
+-------------------------------------------------------
+Command:
+  git merge feature/your-branch-name --no-ff -m "Merge feature/your-branch-name into main"
+
+Explanation:
+  Brings the feature branch changes into main.
+  --no-ff (no fast-forward) forces git to create a merge commit even if it
+  doesn't need to — this keeps the branch history visible so you can see
+  that changes came from a feature branch.
+
+Example:
+  git merge feature/vcam-remote-server-detection --no-ff -m "Merge feature/vcam-remote-server-detection into main"
+
+
+7. PUSH TO GITHUB
+------------------
+Command:
+  git push origin main
+
+Explanation:
+  Uploads your local main branch to GitHub.
+  "origin" is the name for your GitHub remote.
+  Render watches GitHub and auto-redeploys when this runs.
+
+
+8. VIEW RECENT COMMIT HISTORY
+-------------------------------
+Command:
+  git log --oneline -5
+
+Explanation:
+  Shows the last 5 commits in a compact one-line format.
+  Change -5 to any number to see more or fewer commits.
+  Useful for checking that your commits look right before pushing.
+
+
+==================
+FULL WORKFLOW (every time you make changes)
+==================
+
+Step 1 — Start on a new branch:
+  git checkout -b feature/your-feature-name
+
+Step 2 — Check what changed:
+  git status
+
+Step 3 — Stage the files you want to commit:
+  git add file1.js file2.html
+
+Step 4 — Save the snapshot with a message:
+  git commit -m "Describe what and why"
+
+Step 5 — Go back to main:
+  git checkout main
+
+Step 6 — Merge the feature branch in:
+  git merge feature/your-feature-name --no-ff -m "Merge feature/your-feature-name into main"
+
+Step 7 — Send to GitHub (triggers Render redeploy):
+  git push origin main
+
+
+
+The full workflow every time:
+
+git checkout -b feature/your-feature-name   ← start on a new branch
+git status                                   ← check what changed
+git add file1.js file2.html                  ← stage the files
+git commit -m "Describe what and why"        ← save the snapshot
+git checkout main                            ← go back to main
+git merge feature/your-feature-name --no-ff -m "Merge feature/..."  ← merge in
+git push origin main                         ← send to GitHub

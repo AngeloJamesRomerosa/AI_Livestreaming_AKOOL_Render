@@ -1,0 +1,152 @@
+/* ── Mobile layout ────────────────────────────────────────────── */
+
+body.layout-mobile {
+  padding: 12px;
+}
+
+/* Hide output method tabs on mobile — Go Live is the only option */
+body.layout-mobile #vcamMethodTabs {
+  display: none;
+}
+
+/* Force Go Live panel visible regardless of tab state */
+body.layout-mobile #method-golive {
+  display: block !important;
+}
+
+/* Hide desktop-only output methods on mobile */
+body.layout-mobile #method-browser,
+body.layout-mobile #method-popout {
+  display: none !important;
+}
+
+/* Larger touch targets for buttons and inputs */
+body.layout-mobile button {
+  min-height: 44px;
+}
+
+body.layout-mobile input[type="text"],
+body.layout-mobile input[type="password"],
+body.layout-mobile select {
+  min-height: 44px;
+  font-size: 16px; /* prevents iOS Safari auto-zoom on input focus */
+}
+
+/* When user manually forces desktop layout on a real mobile device,
+   show a warning banner on the OBS/VCam methods */
+body.layout-desktop[data-mobile-device] #method-browser::before,
+body.layout-desktop[data-mobile-device] #method-popout::before,
+body.layout-desktop[data-mobile-device] #method-builtin::before {
+  content: '\26A0 Requires desktop + OBS — not available on mobile';
+  display: block;
+  color: var(--warn);
+  font-size: 0.78rem;
+  padding: 6px 10px;
+  background: rgba(245,166,35,0.08);
+  border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+/* ── Portrait orientation — tall panels match portrait camera ─── */
+
+@media (orientation: portrait) {
+  body.layout-mobile .video-panel {
+    aspect-ratio: 9/16;
+  }
+}
+
+/* ── Landscape orientation — restore 2-col, wide panels ─────── */
+
+@media (orientation: landscape) {
+  body.layout-mobile {
+    padding: 8px 12px;
+  }
+  body.layout-mobile header {
+    margin-bottom: 10px;
+  }
+  body.layout-mobile .layout {
+    grid-template-columns: 240px 1fr;
+  }
+  body.layout-mobile .video-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  body.layout-mobile .video-panel {
+    aspect-ratio: 16/9;
+  }
+  body.layout-mobile .card {
+    padding: 12px 14px;
+  }
+  body.layout-mobile .log-panel {
+    height: 100px;
+  }
+}
+
+/* ── Camera flip button — hidden on desktop, shown on mobile ─── */
+
+.flip-cam-btn {
+  display: none;
+}
+
+body.layout-mobile .flip-cam-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 38px;
+  height: 38px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* Hide BG preview panel on mobile — OBS output not relevant on phone */
+body.layout-mobile #bgPreviewPanel {
+  display: none !important;
+}
+
+/* ── Layout switch (header) ───────────────────────────────────── */
+
+#layoutSwitch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+#layoutAutoIndicator {
+  font-size: 0.65rem;
+  color: var(--muted);
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  display: none;
+}
+
+.layout-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.layout-btn:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+}
+
+.layout-btn.active {
+  background: rgba(79,110,247,0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}

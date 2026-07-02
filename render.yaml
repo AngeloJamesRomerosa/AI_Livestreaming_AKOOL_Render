@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: akool-livestream
+    runtime: docker
+    plan: free
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: AKOOL_API_KEY
+        sync: false
+      - key: AKOOL_CLIENT_ID
+        sync: false
+      - key: AKOOL_CLIENT_SECRET
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Faceswap Output</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; overflow: hidden; width: 100vw; height: 100vh; }
+    img  { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    #waiting {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 10px;
+      color: rgba(255,255,255,0.3);
+      font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px;
+      pointer-events: none;
+    }
+    #waiting svg { opacity: 0.2; }
+    #waiting.hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div id="waiting">
+    <svg width="44" height="44" fill="none" viewBox="0 0 24 24" stroke="white">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
+        d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14
+           M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+    </svg>
+    Waiting for AI faceswap stream…
+  </div>
+
+  <img id="stream" alt="AI Output" />
+
+  <script>
+    const params     = new URLSearchParams(window.location.search);
+    const key        = params.get('key') || '';
+    const streamBase = '/stream.mjpeg' + (key ? '?key=' + key : '');
+
+    const img     = document.getElementById('stream');
+    const waiting = document.getElementById('waiting');
+
+    img.src = streamBase;
+
+    img.addEventListener('load', () => waiting.classList.add('hidden'), { once: true });
+
+    // Re-show waiting if stream drops, then auto-reconnect (append timestamp to bust cache)
+    img.addEventListener('error', () => {
+      waiting.classList.remove('hidden');
+      setTimeout(() => {
+        img.src = streamBase + (key ? '&t=' : '?t=') + Date.now();
+      }, 2000);
+    });
+  </script>
+</body>
+</html>
