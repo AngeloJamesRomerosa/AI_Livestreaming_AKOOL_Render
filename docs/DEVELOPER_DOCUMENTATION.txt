@@ -1,0 +1,363 @@
+AKOOL Livestream Faceswap -- Project Documentation
+====================================================
+
+Version    : Render Edition
+Deployment : Render free tier (Docker, 512MB RAM)
+
+
+PROJECT OVERVIEW
+----------------
+Real-time AI face swap during a live stream using the AKOOL Live Faceswap API.
+Thin FastAPI server (session manager + frame relay). All heavy processing
+(camera publish, BG removal, OBS frame compositing) runs in the browser.
+
+Outputs:
+  - OBS Browser Source  (MJPEG stream via /stream.mjpeg -> viewer.html -> OBS)
+  - Pop Out Window      (popup -> OBS Window Capture)
+  - Go Live RTMP        (ffmpeg server-side -> YouTube / Twitch / Stripchat)
+
+
+STACK
+-----
+Backend        : Python 3.12, FastAPI, uvicorn, asyncio
+Frontend       : Vanilla JS, HTML5, CSS (no frameworks)
+WebSockets     : Starlette WebSocket (server), native browser WS (client)
+Agora          : Agora Web SDK 4.20.0 (browser) -- camera publish + faceswap receive
+Background     : MediaPipe SelfieSegmentation WASM (browser, no server GPU needed)
+Faceswap API   : AKOOL Live Faceswap via Agora RTC channel
+OBS relay      : obs.js Web Worker timer -> POST JPEG -> /ws/stream-out (server)
+Container      : Docker (Render auto-builds from Dockerfile)
+State/cache    : In-memory (Redis optional, not required for single instance)
+RTMP           : ffmpeg (server-side subprocess)
+
+
+ENTRY POINTS
+------------
+app.py                - FastAPI app factory. Registers providers, routers, starts uvicorn.
+public/index.html     - Main UI (AI Model -> Auth -> Source Face -> Session -> Output)
+public/viewer.html    - OBS Browser Source / Pop Out Window target (MJPEG receiver)
+Dockerfile            - Container build (Python 3.12-slim, pip install, uvicorn entrypoint)
+render.yaml           - Render service definition
+
+
+FRAME FLOW
+----------
+Browser camera
+    |
+    v  Agora Web SDK (browser)
+AKOOL cloud -- faceswap processing
+    |
+    v  Agora channel -> browser receives face-swapped output
+MediaPipe SelfieSegmentation (canvas compositing in browser)
+    |
+    v  obs.js Web Worker timer (30fps, immune to Chrome tab throttling)
+POST binary JPEG -> /ws/stream-out (server)
+    |
+    +-- /ws/stream-in  <- OBS Browser Source (viewer.html polls)
+    +-- /stream.mjpeg  <- OBS Media Source / Pop Out Window
+
+
+SERVER vs BROWSER SPLIT
+------------------------
+Server handles (FastAPI):
+  - AKOOL session create/update/close   routes/session.py
+  - Auth (API key / token exchange)     routes/auth.py
+  - Face image upload + resize          routes/faces.py (Pillow)
+  - Face detection (AKOOL API call)     providers/akool/faces.py
+  - Receive JPEG frames from obs.js     providers/akool/routes_stream.py  /ws/stream-out
+  - Relay frames to viewers             routes/stream.py                  /ws/stream-in
+  - MJPEG stream for OBS               routes/stream_mjpeg.py            /stream.mjpeg
+  - RTMP via ffmpeg                     routes/rtmp.py + routes/rtmp_ffmpeg.py
+  - Stream metrics (latency)            routes/stream_metrics.py
+  - Credit balance, stream profiles     providers/akool/routes_meta.py
+
+Browser handles (public/js/):
+  - Agora channel join + camera publish        session.js
+  - Receive AKOOL faceswapped video            session.js (user-published handler)
+  - MediaPipe SelfieSegmentation BG removal    bg-engine.js
+  - BG preset UI                               bg-ui.js + bg-toggles.js
+  - OBS relay -- canvas -> /ws/stream-out      obs.js
+  - Pipeline metrics display                   pipeline-poller.js
+  - Face Lock / Face Match AI                  faceai.js + face-metrics-poller.js
+  - RTMP audio capture                         rtmp-audio.js
+  - Quality / resolution selector              quality-selector.js
+
+
+RUNNING LOCALLY
+---------------
+  pip install -r requirements.txt
+  python app.py
+  # Open http://localhost:8000
+
+Docker local:
+  docker compose up --build
+
+For uploaded images to reach AKOOL, set PUBLIC_BASE_URL in environment:
+  PUBLIC_BASE_URL=https://your-ngrok-url.ngrok-free.app (local)
+  PUBLIC_BASE_URL=https://your-app.onrender.com         (Render)
+
+
+ENVIRONMENT VARIABLES
+---------------------
+  AKOOL_API_KEY        (required if not using Client ID/Secret)
+  AKOOL_CLIENT_ID      (required if not using API key)
+  AKOOL_CLIENT_SECRET  (required if not using API key)
+  PUBLIC_BASE_URL      (required -- AKOOL fetches uploaded images from this URL)
+  PORT                 (optional, default 8000)
+  REDIS_URL            (optional -- omit for in-memory fallback on single instance)
+
+
+TESTING GUIDE
+-------------
+Run these stages in order when verifying a new deployment or after code changes.
+
+  Stage 1 -- Server Health Check
+    GET /api/stream-profiles   Expected: JSON with resolution/fps/bitrate table
+    GET /api/provider/list     Expected: [{ "id": "akool", ... }]
+    GET /api/authStatus        Expected: { "hasApiKey": true/false, ... }
+
+  Stage 2 -- Authentication
+    1. Open the app URL
+    2. Expand Authentication panel, enter credentials or API key
+    3. Click Authenticate -- status turns green
+    4. Activity Log: "Authentication successful"
+
+  Stage 3 -- Face Upload
+    1. Upload a clear frontal face photo via Source Face Image panel
+    2. Click Detect Faces
+    3. Activity Log: "Face detected -- opts: ..."
+    4. Verify image is publicly reachable:
+         GET https://<PUBLIC_BASE_URL>/uploads/<filename> --> 200 OK
+
+  Stage 4 -- Background Preview (no session needed)
+    1. Expand Background Removal, select any preset (e.g. Beach)
+    2. Click "Preview Camera (BG Test)"
+    3. BG Output panel shows camera with background applied in real time
+    4. Model loads on first use (~2-3 seconds), then runs in browser WASM
+
+  Stage 5 -- Full Session
+    1. Select Stream Quality (Auto or 480p for first test)
+    2. Click "Start Faceswap" -- wait 5-15 seconds
+    3. AI Faceswap Output panel shows face-swapped video
+    4. Activity Log: "Live faceswap is active!"
+    5. Activity Log: "OBS relay stream started"
+
+  Stage 6 -- OBS Integration
+    1. While session is running, copy viewer URL from Virtual Camera Output panel
+    2. OBS: Sources --> + --> Browser Source --> paste URL
+    3. Set width/height to match quality (e.g. 1280x720 for 720p)
+    4. AI-swapped video should appear in OBS
+
+  Stage 7 -- RTMP / Go Live
+    1. Go Live tab --> enter RTMP URL:
+         YouTube:   rtmp://a.rtmp.youtube.com/live2/<key>
+         Twitch:    rtmp://live.twitch.tv/app/<key>
+    2. Click Go Live
+    3. Confirm stream is active on platform dashboard
+
+Performance baseline (Render free tier, browser-side processing):
+  Metric                   Target       Notes
+  -----------------------  -----------  ----------------------------------------
+  Agora e2e latency        < 800ms      Grows over session lifetime (known limit)
+  OBS relay fps            ~30fps       Web Worker timer maintains fps in background
+  BG segmentation          ~15-25fps    Depends on user's device GPU/CPU
+  Session startup time     5-15s        Agora join + AKOOL warmup
+
+
+KEY BACKEND FILES
+-----------------
+app.py                              - App factory, provider/router registration
+config.py                           - .env loading, PORT, PUBLIC_BASE_URL, REDIS_URL
+redis_client.py                     - Async Redis singleton; in-memory fallback
+routes/auth.py                      - POST /api/auth/apikey, POST /api/getToken
+routes/faces.py                     - POST /api/uploadImage
+routes/session.py                   - POST /api/session/create, /close
+routes/stream.py                    - WS /ws/stream-in (viewer receives frames)
+routes/stream_mjpeg.py              - GET /stream.mjpeg
+routes/stream_metrics.py            - POST /api/metrics/latency, GET /api/relay-log
+routes/state.py                     - Session state (sid <-> stream secret key)
+routes/rtmp.py                      - POST /api/rtmp/start, /stop; WS /ws/audio-out
+routes/rtmp_ffmpeg.py               - ffmpeg process management
+routes/schemas.py                   - All Pydantic response models
+providers/akool/provider.py         - AkoolProvider: auth, create/close session
+providers/akool/routes_stream.py    - WS /ws/stream-out (receives JPEG from obs.js)
+providers/akool/routes_meta.py      - GET /api/stream-profiles, /api/credit, /api/detectFaces
+providers/akool/session_helpers.py  - _poll_until_ready() (polls AKOOL until status=2)
+providers/akool/stream_profiles.py  - Resolution/fps/bitrate quality table
+providers/akool/faces.py            - detect_faces() AKOOL API call
+providers/akool/auth_state.py       - Stores API key / bearer token in memory
+
+
+KEY FRONTEND FILES
+------------------
+public/js/app.js               - Shared globals (agoraClient, session), logging, accordion
+public/js/auth.js              - Auth, face upload, face detection
+public/js/session.js           - Full session lifecycle (join Agora, start/stop, cleanup)
+public/js/provider.js          - Provider selector UI, error codes, config fetch
+public/js/bg-engine.js         - MediaPipe SelfieSegmentation init + _compositeFrame()
+public/js/bg-ui.js             - BG presets, Option A/B, bgApplyToObsFrame()
+public/js/bg-toggles.js        - BG toggle buttons (Segmenter, Pose, Hands, etc.)
+public/js/bg-preview.js        - Preview Camera (BG test without session)
+public/js/obs.js               - OBS relay: canvas -> JPEG -> /ws/stream-out
+public/js/quality-selector.js  - Stream quality UI + getPreset() used by session.js
+public/js/pipeline-poller.js   - 20s pipeline metric polls (partial -- /api/metrics/pipeline missing)
+public/js/metrics-collect.js   - Per-second FPS/latency collection + session summary
+public/js/metrics-render.js    - Metrics panel rendering
+public/js/faceai.js            - Face Lock / Face Match toggle wiring
+public/js/face-metrics-poller.js - Polls /api/metrics/face (not available in this version)
+public/js/layout.js            - Mobile/desktop layout switch + light/dark theme toggle
+public/js/rtmp-audio.js        - Browser mic audio -> /ws/audio-out -> ffmpeg
+public/js/rtmp.js              - RTMP Go Live UI
+
+
+BACKGROUND PROCESSING (BROWSER-SIDE)
+--------------------------------------
+MediaPipe SelfieSegmentation loads as WebAssembly via CDN on first use.
+No server GPU or Python dependencies needed.
+
+Options:
+  Option A -- BG applied to camera input (before Agora/AKOOL):
+    bgStartOptionA() creates a canvas stream from the raw camera track,
+    runs _compositeFrame() per rAF tick, publishes the composited canvas
+    as the Agora video track. AKOOL receives BG-removed camera.
+
+  Option B -- BG applied to OBS output:
+    bgApplyToObsFrame() is called by obs.js on each frame before sending
+    to /ws/stream-out. AKOOL receives raw camera; OBS receives BG-applied output.
+
+Performance notes:
+  - First use: ~2-3 second model load (WASM download + warmup)
+  - Per-frame: ~15-30fps depending on device GPU/CPU
+  - Temporal smoothing (EMA, alpha=0.4) reduces mask edge jitter
+  - Edge feather: contrast(4) + blur(2px) for natural boundary blending
+
+
+AGORA / AKOOL INTEGRATION (BROWSER-SIDE)
+-----------------------------------------
+The browser uses Agora Web SDK 4.20.0 directly (no server publisher).
+
+Session flow:
+  1. /api/session/create -> AKOOL returns { app_id, channel_id, front_user_id, front_rtc_token }
+  2. Browser calls agoraClient.join(app_id, channel_id, front_rtc_token, front_user_id)
+  3. Browser publishes local camera track (with optional Option A BG applied)
+  4. AKOOL processes frames and publishes faceswapped output on the same channel
+  5. Browser receives the faceswapped video via user-published event
+
+Known limitation:
+  Agora jitter buffer grows over session lifetime due to AKOOL burst delivery.
+  Stop and restart the session every 45-60 minutes for long streams.
+
+
+OBS RELAY (obs.js)
+-------------------
+The browser sends the AI output to the server as JPEG frames via WebSocket.
+The server fans these out to /ws/stream-in viewers and /stream.mjpeg.
+
+Key features:
+  - Web Worker timer: fires at 30fps even when Chrome tab is backgrounded
+    (setInterval on main thread throttles to ~1fps; Workers are exempt)
+  - Watchdog: releases _obsSending lock if toBlob stalls for >500ms (GPU spike)
+  - Buffer guard: skips frame if WebSocket bufferedAmount > 240KB
+  - Silent AudioContext keep-alive: prevents Chrome from suspending video rendering
+  - bgApplyToObsFrame() applies BG (Option B) before sending each frame
+
+
+WHAT IS NOT IN THIS VERSION (GCP only)
+---------------------------------------
+  - Server-side MediaPipe BG removal (OpenCV + GPU)
+  - Headless Chrome Agora publisher (Playwright)
+  - 3 adaptive throttles (BG fps, AKOOL RTT, Agora jitter)
+  - /api/metrics/pipeline  (20s server-side pipeline snapshots)
+  - /api/metrics/face      (server-side face lock/match scoring)
+  - /api/face-detector/status
+  - /api/bg/preset, /api/bg/toggle, /api/bg/status
+  - /ws/bg-test            (server-side BG preview without session)
+  - /ws/camera-input       (server-side camera ingest)
+  - pyvirtualcam / built-in virtual camera
+  - Redis multi-instance horizontal scaling
+  - nginx sticky routing
+  - GCP deploy workflow
+
+
+MISLEADING LOG LINES (known issues)
+-------------------------------------
+The following log messages appear but relate to GCP-only features:
+
+  "Face Lock: server-side detection active (MediaPipe)"
+    -- logged unconditionally by metrics-collect.js startMetrics()
+    -- face lock is NOT active (no /api/metrics/face endpoint)
+    -- fix: update metrics-collect.js to skip this when server detection unavailable
+
+  "[20s] Pipeline -- Cam:Xfps AKOOL:X->Xfps..."
+    -- pipeline-poller.js polls /api/metrics/pipeline which does not exist
+    -- 404 is caught silently; no snapshot appears in the log
+
+
+API QUICK REFERENCE
+-------------------
+  POST /api/auth/apikey          - Store API key in server memory
+  POST /api/getToken             - Exchange Client ID + Secret for bearer token
+  GET  /api/authStatus           - Which credentials are configured
+  GET  /api/provider/list        - List registered providers
+  POST /api/provider/select      - Set active provider
+  POST /api/session/create       - Create faceswap session -> returns Agora credentials
+  POST /api/session/close        - End session
+  GET  /api/session/viewer-url   - Get viewer URL and MJPEG URL for active session
+  POST /api/uploadImage          - Upload face image, get hosted URL
+  POST /api/detectFaces          - Detect face opts from image URL (AKOOL API call)
+  GET  /api/stream-profiles      - Resolution/fps/bitrate table for quality selector
+  GET  /api/credit               - AKOOL credit balance
+  WS   /ws/stream-out?sid=<id>   - Receive JPEG frames from obs.js, fan to viewers
+  WS   /ws/stream-in?sid=<id>    - Send frames to viewer.html (OBS Browser Source)
+  GET  /stream.mjpeg?key=<key>   - MJPEG stream for OBS Media Source / Pop Out
+  GET  /api/metrics/stream       - Current FPS + e2e latency (client-posted)
+  POST /api/metrics/latency      - Client posts Agora latency components
+  GET  /api/relay-log            - Drain relay activity log
+  GET  /api/time-sync            - NTP-style clock offset
+  POST /api/rtmp/start           - Start ffmpeg RTMP stream
+  POST /api/rtmp/stop            - Stop RTMP stream
+  WS   /ws/audio-out             - Browser mic audio -> ffmpeg stdin
+
+
+DEPLOYMENT (Render)
+--------------------
+  Push to GitHub main branch -> Render auto-deploys via Docker.
+
+  Required env vars (Render Dashboard -> Environment):
+    AKOOL_API_KEY     OR
+    AKOOL_CLIENT_ID + AKOOL_CLIENT_SECRET
+    PUBLIC_BASE_URL   = https://your-service.onrender.com
+
+  Optional:
+    REDIS_URL         = redis://...  (add Render Redis add-on if needed)
+    PORT              = (auto-set by Render)
+
+  Free tier limits:
+    512MB RAM         -- works because no Playwright or server-side MediaPipe
+    Spins down after 15min inactivity -- first request after idle takes ~30s
+    No persistent disk -- uploads stored in memory only
+
+
+COMMON GOTCHAS
+--------------
+  - PUBLIC_BASE_URL must be set: localhost is unreachable by AKOOL servers.
+    Uploaded face images need a public URL.
+
+  - OBS Browser Source black screen: copy the viewer URL fresh each session.
+    The stream key expires when the session ends. Right-click -> Refresh in OBS.
+
+  - Browser tab backgrounding: Chrome throttles background tabs.
+    Keep the app tab visible while streaming.
+    obs.js uses a Web Worker timer + AudioContext keep-alive to reduce this.
+
+  - Background shows black: BG_PRESETS in bg-ui.js must match the preset IDs
+    in index.html. If adding new presets, update both.
+
+  - OBS relay WebSocket error: the /ws/stream-out endpoint requires ?sid=<session_id>.
+    Missing sid causes immediate 422 rejection.
+
+  - JS cache busting: after editing any .js or .css file, increment ?v=N in
+    public/index.html for that file to force browsers to reload it.
+
+  - Session code 1101: AKOOL token expired, click Authenticate again.
+  - Session code 1104: AKOOL quota exceeded, check your plan.
