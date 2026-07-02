@@ -169,13 +169,17 @@ app.mount("/", StaticFiles(directory="public", html=True), name="static")
 def _watch_for_quit() -> None:
     """
     Background daemon thread that monitors stdin.
-    Typing 'q' + Enter sends SIGINT to the main process, triggering the same
-    graceful shutdown that Ctrl+C does via uvicorn's signal handler.
+    Typing 'q' + Enter stops both the uvicorn reloader and its worker process.
+    On Windows we broadcast CTRL_C_EVENT to the whole console process group so
+    the worker does not become an orphan holding the port after the reloader exits.
     """
     for line in sys.stdin:
         if line.strip().lower() == "q":
             print("\n  Shutting down…")
-            os.kill(os.getpid(), signal.SIGINT)
+            if sys.platform == "win32":
+                os.kill(0, signal.CTRL_C_EVENT)
+            else:
+                os.kill(os.getpid(), signal.SIGINT)
             return
 
 
