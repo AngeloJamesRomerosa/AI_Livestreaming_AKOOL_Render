@@ -1,0 +1,87 @@
+AKOOL Livestream Faceswap -- API Documentation
+================================================
+
+FastAPI automatically generates interactive API documentation.
+No extra setup needed -- it is built in.
+
+
+ACCESSING THE DOCS
+------------------
+When the server is running, open one of these in your browser:
+
+  Local:
+    Swagger UI  -->  http://localhost:8000/docs
+    ReDoc       -->  http://localhost:8000/redoc
+
+  Render (live deployment):
+    Swagger UI  -->  https://your-app.onrender.com/docs
+    ReDoc       -->  https://your-app.onrender.com/redoc
+
+  Swagger UI  -- interactive: try any endpoint directly from the browser
+  ReDoc       -- clean read-only reference, good for sharing
+
+
+ENDPOINT GROUPS
+---------------
+The endpoints are organized into the following tagged groups:
+
+  Authentication
+  --------------
+  POST  /api/auth/apikey          Store an AKOOL API key on the server
+  POST  /api/getToken             Exchange Client ID + Secret for a bearer token
+  GET   /api/authStatus           Check which credentials are currently configured
+
+  Faces
+  -----
+  POST  /api/uploadImage          Upload a face image; returns a hosted public URL
+  POST  /api/detectFaces          Detect face options from an image URL (AKOOL call)
+
+  Session
+  -------
+  POST  /api/session/create       Create a faceswap session; returns Agora credentials
+  POST  /api/session/close        End the active faceswap session
+  GET   /api/session/viewer-url   Get the viewer URL and MJPEG URL for the active session
+
+  Stream
+  ------
+  WS    /ws/stream-out            Receive JPEG frames from obs.js (requires ?sid=<id>)
+  WS    /ws/stream-in             Send frames to viewer.html (OBS Browser Source)
+  GET   /stream.mjpeg             MJPEG stream for OBS Media Source / Pop Out Window
+
+  Metrics
+  -------
+  POST  /api/metrics/latency      Client posts Agora latency components
+  GET   /api/metrics/stream       Current FPS + e2e latency (client-posted)
+  GET   /api/relay-log            Drain relay activity log (polled every 3s by obs.js)
+  GET   /api/time-sync            NTP-style clock offset between server and browser
+  POST  /api/metrics/report       No-op stub for client-side metric reporting
+
+  RTMP
+  ----
+  POST  /api/rtmp/start           Start an ffmpeg RTMP stream to YouTube/Twitch/etc.
+  POST  /api/rtmp/stop            Stop the active RTMP stream
+  WS    /ws/audio-out             Browser mic audio -> ffmpeg stdin -> RTMP stream
+
+  Provider
+  --------
+  GET   /api/provider/list        List all registered providers
+  POST  /api/provider/select      Set the active provider
+  GET   /api/provider/config      Get provider-specific client config
+
+  Agora (AKOOL provider extras)
+  ------------------------------
+  GET   /api/stream-profiles      Resolution / fps / bitrate quality table
+  GET   /api/credit               AKOOL credit balance
+
+
+NOTES
+-----
+  - WebSocket endpoints (WS) do not appear in Swagger UI as interactive forms,
+    but they are listed. Use a WebSocket client (e.g. Postman, wscat) to test them.
+
+  - /ws/stream-out requires the ?sid=<session_id> query parameter.
+    Missing it returns 422 Unprocessable Entity.
+
+  - The OpenAPI JSON schema is available at:
+      http://localhost:8000/openapi.json   (local)
+      https://your-app.onrender.com/openapi.json   (Render)

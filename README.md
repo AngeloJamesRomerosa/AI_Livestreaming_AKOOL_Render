@@ -30,6 +30,7 @@ The browser handles all heavy lifting: Agora camera publish, faceswap receive, M
 
 - [Local Setup Guide](docs/LOCAL_SETUP.txt) — clone, install, configure `.env`, run at `localhost:8000`
 - [Render Deployment Guide](docs/RENDER_DEPLOYMENT.txt) — first-time deploy and updating the live service
+- [API Docs](docs/API_DOCS.txt) — all endpoints, Swagger UI at `/docs`, ReDoc at `/redoc`
 
 ---
 
