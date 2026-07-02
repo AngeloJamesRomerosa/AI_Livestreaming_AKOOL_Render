@@ -9,7 +9,7 @@ function _updateSegBtn() {
     btn.textContent      = 'Segmenter: ON';
     btn.style.border     = '1px solid var(--accent)';
     btn.style.color      = 'var(--accent)';
-    btn.style.background = '#1a2240';
+    btn.style.background = 'var(--accent-bg)';
     btn.style.cursor     = 'default';
     btn.style.opacity    = '0.85';
     btn.title            = 'Segmenter is always active when a background is selected';

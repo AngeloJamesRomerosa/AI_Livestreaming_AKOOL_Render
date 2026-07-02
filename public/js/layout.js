@@ -1,6 +1,22 @@
 /* ─── Layout detection and switching (mobile ↔ desktop) ──────── */
 
 const _LAYOUT_KEY = 'preferred_layout';
+const _THEME_KEY  = 'preferred_theme';
+
+function toggleTheme() {
+  const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  _applyTheme(next);
+  localStorage.setItem(_THEME_KEY, next);
+}
+
+function _applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = document.getElementById('themeToggle');
+  if (btn) btn.textContent = theme === 'light' ? '🌙' : '☀';
+}
+
+// Apply saved theme before first paint
+_applyTheme(localStorage.getItem(_THEME_KEY) || 'dark');
 
 function isIOS() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) ||

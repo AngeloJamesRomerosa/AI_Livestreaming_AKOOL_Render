@@ -132,7 +132,7 @@ function setBgMode(mode) {
     el.classList.toggle('active', isActive);
     el.style.border     = isActive ? '1px solid var(--accent)' : '1px solid var(--border)';
     el.style.color      = isActive ? 'var(--accent)'           : 'var(--muted)';
-    el.style.background = isActive ? '#1a2240'                 : 'var(--bg)';
+    el.style.background = isActive ? 'var(--accent-bg)'                 : 'var(--bg)';
   });
   const noteA = document.getElementById('bgModeNote');
   const noteB = document.getElementById('bgModeNoteB');

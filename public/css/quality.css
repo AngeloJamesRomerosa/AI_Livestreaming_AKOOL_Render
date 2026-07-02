@@ -49,11 +49,11 @@
 .yt-badge {
   font-size: 0.6rem;
   font-weight: 700;
-  background: rgba(79,110,247,0.15);
+  background: rgba(220,38,38,0.15);
   color: var(--accent);
   padding: 1px 5px;
   border-radius: 3px;
-  border: 1px solid rgba(79,110,247,0.35);
+  border: 1px solid rgba(220,38,38,0.35);
   letter-spacing: 0.03em;
 }
 
@@ -104,7 +104,7 @@
 }
 
 .qc-btn.active {
-  background: rgba(79,110,247,0.15);
+  background: rgba(220,38,38,0.15);
   border-color: var(--accent);
   color: var(--accent);
   font-weight: 600;

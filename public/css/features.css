@@ -52,7 +52,7 @@
 
 .bg-mode-btn.active {
   border-color: var(--accent) !important;
-  background: #1a2240 !important;
+  background: var(--accent-bg) !important;
   color: var(--accent) !important;
 }
 
@@ -122,7 +122,7 @@
 }
 
 .provider-opt:hover { background: rgba(255,255,255,0.05); color: var(--text); transform: none; }
-.provider-opt.active { color: var(--accent); background: #1a2240; }
+.provider-opt.active { color: var(--accent); background: var(--accent-bg); }
 .provider-opt + .provider-opt { border-top: 1px solid var(--border); }
 
 /* Provider-specific settings — hidden until matching provider is selected */

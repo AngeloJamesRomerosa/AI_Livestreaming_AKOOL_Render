@@ -4,8 +4,9 @@
   --bg: #0d0f14;
   --surface: #161a24;
   --border: #262c3d;
-  --accent: #4f6ef7;
-  --accent-hover: #6b84ff;
+  --accent: #dc2626;
+  --accent-hover: #ef4444;
+  --accent-bg: #2a1215;
   --danger: #e05353;
   --success: #3ecf8e;
   --warn: #f5a623;
@@ -13,6 +14,15 @@
   --text: #e2e8f0;
   --muted: #64748b;
   --radius: 10px;
+}
+
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent-bg: #fee2e2;
 }
 
 body {
@@ -41,7 +51,7 @@ header span { font-size: 0.8rem; color: var(--muted); }
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  background: #1a2240;
+  background: var(--accent-bg);
   color: var(--accent);
   border: 1px solid var(--accent);
 }
@@ -231,4 +241,10 @@ button:active { transform: scale(0.97); }
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
+
+/* ── Light mode overrides for hardcoded dark values ── */
+[data-theme="light"] .btn-secondary:hover { background: #cbd5e1; }
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="password"],
+[data-theme="light"] select { background: #fff; }
 
