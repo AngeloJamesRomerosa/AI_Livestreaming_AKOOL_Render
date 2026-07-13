@@ -30,7 +30,78 @@
 
   <!-- ── Left sidebar: config panels ── -->
   <aside>
+    <!-- ── Status panel — always visible, cannot be closed ── -->
+    <div class="card">
+      <div id="sessionInfo" style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;">
+        No active session.
+      </div>
+      <button class="btn-primary" id="btnStart" onclick="handleStart()" disabled>
+        Start Faceswap
+      </button>
+      <button class="btn-danger" id="btnStop" onclick="handleStop()" disabled>
+        Stop &amp; Close Session
+      </button>
 
+      <div id="cameraConflictNotice" style="display:none;margin-top:10px;padding:10px;border:1px solid var(--warn);border-radius:6px;font-size:0.78rem;line-height:1.6;">
+        <strong style="color:var(--warn);">Webcam is in use by another app/website.</strong><br>
+        Go to app/website → change camera to <strong>OBS Virtual Camera</strong><br>
+        then click Retry below.
+        <button class="btn-secondary" onclick="retryCamera()"
+          style="width:100%;margin-top:8px;border-color:var(--warn);color:var(--warn);">
+          Retry Camera
+        </button>
+      </div>
+
+      <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);margin-bottom:10px;">
+        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:6px;">AI Models <span style="font-weight:400;text-transform:none;opacity:0.6;">(Optional)</span></div>
+        <div class="model-row" id="msr-faceLock">
+          <span class="msr-dot"></span>
+          <div class="msr-label">
+            <span class="msr-name">Face Lock</span>
+            <span class="msr-sub">TinyFaceDetector</span>
+          </div>
+          <div class="msr-states">
+            <span class="msr-badge msr-ready-badge">Ready</span>
+            <span class="msr-badge msr-active-badge">Active</span>
+          </div>
+        </div>
+        <div class="model-row" id="msr-faceMatch">
+          <span class="msr-dot"></span>
+          <div class="msr-label">
+            <span class="msr-name">Face Match</span>
+            <span class="msr-sub">FaceLandmark68 + FaceRecognition</span>
+          </div>
+          <div class="msr-states">
+            <span class="msr-badge msr-ready-badge">Ready</span>
+            <span class="msr-badge msr-active-badge">Active</span>
+          </div>
+        </div>
+        <div class="model-row" id="msr-background">
+          <span class="msr-dot"></span>
+          <div class="msr-label">
+            <span class="msr-name">Background</span>
+            <span class="msr-sub">MediaPipe SelfieSegmentation</span>
+          </div>
+          <div class="msr-states">
+            <span class="msr-badge msr-ready-badge">Ready</span>
+            <span class="msr-badge msr-active-badge">Active</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:6px;">Services</div>
+        <div class="model-row" id="msr-agora">
+          <span class="msr-dot"></span>
+          <span class="msr-name">Agora SDK</span>
+          <span class="msr-status">Checking…</span>
+        </div>
+        <div class="model-row" id="msr-akool">
+          <span class="msr-dot"></span>
+          <span class="msr-name">AKOOL API</span>
+          <span class="msr-status">Not authenticated</span>
+        </div>
+      </div>
+    </div>
       <!-- Auth -->
     <div class="card accordion open">
       <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
@@ -130,7 +201,7 @@
       <div class="provider-settings" data-provider="akool">
 
       <!-- ── Stream Quality ── -->
-      <div class="accordion">
+      <div class="accordion open">
         <div class="accordion-header" onclick="toggleAccordion(this)">
           Stream Quality <span class="accordion-arrow">▾</span>
         </div>
@@ -303,79 +374,6 @@
 
       </div><!-- end accordion-body -->
     </div><!-- end session card -->
-
-    <!-- ── Status panel — always visible, cannot be closed ── -->
-    <div class="card">
-      <div id="sessionInfo" style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;">
-        No active session.
-      </div>
-      <button class="btn-primary" id="btnStart" onclick="handleStart()" disabled>
-        Start Faceswap
-      </button>
-      <button class="btn-danger" id="btnStop" onclick="handleStop()" disabled>
-        Stop &amp; Close Session
-      </button>
-
-      <div id="cameraConflictNotice" style="display:none;margin-top:10px;padding:10px;border:1px solid var(--warn);border-radius:6px;font-size:0.78rem;line-height:1.6;">
-        <strong style="color:var(--warn);">Webcam is in use by another app/website.</strong><br>
-        Go to app/website → change camera to <strong>OBS Virtual Camera</strong><br>
-        then click Retry below.
-        <button class="btn-secondary" onclick="retryCamera()"
-          style="width:100%;margin-top:8px;border-color:var(--warn);color:var(--warn);">
-          Retry Camera
-        </button>
-      </div>
-
-      <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);margin-bottom:10px;">
-        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:6px;">AI Models <span style="font-weight:400;text-transform:none;opacity:0.6;">(Optional)</span></div>
-        <div class="model-row" id="msr-faceLock">
-          <span class="msr-dot"></span>
-          <div class="msr-label">
-            <span class="msr-name">Face Lock</span>
-            <span class="msr-sub">TinyFaceDetector</span>
-          </div>
-          <div class="msr-states">
-            <span class="msr-badge msr-ready-badge">Ready</span>
-            <span class="msr-badge msr-active-badge">Active</span>
-          </div>
-        </div>
-        <div class="model-row" id="msr-faceMatch">
-          <span class="msr-dot"></span>
-          <div class="msr-label">
-            <span class="msr-name">Face Match</span>
-            <span class="msr-sub">FaceLandmark68 + FaceRecognition</span>
-          </div>
-          <div class="msr-states">
-            <span class="msr-badge msr-ready-badge">Ready</span>
-            <span class="msr-badge msr-active-badge">Active</span>
-          </div>
-        </div>
-        <div class="model-row" id="msr-background">
-          <span class="msr-dot"></span>
-          <div class="msr-label">
-            <span class="msr-name">Background</span>
-            <span class="msr-sub">MediaPipe SelfieSegmentation</span>
-          </div>
-          <div class="msr-states">
-            <span class="msr-badge msr-ready-badge">Ready</span>
-            <span class="msr-badge msr-active-badge">Active</span>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:6px;">Services</div>
-        <div class="model-row" id="msr-agora">
-          <span class="msr-dot"></span>
-          <span class="msr-name">Agora SDK</span>
-          <span class="msr-status">Checking…</span>
-        </div>
-        <div class="model-row" id="msr-akool">
-          <span class="msr-dot"></span>
-          <span class="msr-name">AKOOL API</span>
-          <span class="msr-status">Not authenticated</span>
-        </div>
-      </div>
-    </div>
 
   </aside>
 
