@@ -26,11 +26,17 @@
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   padding: 24px;
+}
+
+/* Headings use Montserrat for stronger display */
+h1, h2, h3, h4, h5 {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-weight: 700;
 }
 
 header {
@@ -214,7 +220,7 @@ button:active { transform: scale(0.97); }
   font-size: 0.8rem;
 }
 
-.btn-secondary:hover { background: #313a55; }
+.btn-secondary:hover { background: var(--accent-bg); }
 
 /* Status indicator */
 .status-row {
@@ -243,7 +249,7 @@ button:active { transform: scale(0.97); }
 }
 
 /* ── Light mode overrides for hardcoded dark values ── */
-[data-theme="light"] .btn-secondary:hover { background: #cbd5e1; }
+[data-theme="light"] .btn-secondary:hover { background: var(--accent-bg); }
 [data-theme="light"] input[type="text"],
 [data-theme="light"] input[type="password"],
 [data-theme="light"] select { background: #fff; }

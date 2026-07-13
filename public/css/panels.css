@@ -48,7 +48,7 @@
   background: rgba(0,0,0,0.6);
   color: rgba(255,255,255,0.85);
   font-size: 0.67rem;
-  font-family: monospace;
+  font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
   padding: 3px 8px;
   display: flex;
   align-items: center;
@@ -103,7 +103,7 @@
   padding: 14px 16px;
   height: 180px;
   overflow-y: auto;
-  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
   font-size: 0.75rem;
   line-height: 1.6;
 }
@@ -120,7 +120,7 @@
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 10px;
-  font-family: monospace;
+  font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
   font-size: 0.72rem;
   color: var(--accent);
   max-height: 80px;
