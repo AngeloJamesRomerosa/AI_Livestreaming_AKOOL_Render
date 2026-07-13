@@ -57,6 +57,18 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
+document.querySelectorAll('.session-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const panel = tab.closest('.session-panel');
+    if (!panel) return;
+    panel.querySelectorAll('.session-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const paneId = tab.dataset.tab;
+    panel.querySelectorAll('.session-tab-pane').forEach(p => p.classList.remove('active'));
+    panel.querySelector(`#${paneId}`)?.classList.add('active');
+  });
+});
+
 /* ─── Video panel activity log ───────────────────────────────── */
 function _setVidLog(id, state, text) {
   const el = document.getElementById(id + 'Log');
