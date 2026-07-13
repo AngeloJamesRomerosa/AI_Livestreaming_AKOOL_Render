@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AKOOL Livestream Faceswap</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@500;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/base.css?v=2" />
   <link rel="stylesheet" href="css/panels.css?v=2" />
   <link rel="stylesheet" href="css/metrics.css?v=2" />
@@ -248,7 +249,7 @@
           <!-- Mode selector -->
           <div style="display:flex;gap:6px;margin-bottom:6px;">
             <button class="bg-mode-btn active" data-mode="optionB" onclick="setBgOutputMode('optionB')"
-              style="flex:1;padding:4px 0;font-size:0.72rem;border:1px solid var(--accent);border-radius:4px;background:#1a2240;color:var(--accent);cursor:pointer;">
+              style="flex:1;padding:4px 0;font-size:0.72rem;border:1px solid var(--accent);border-radius:4px;background:var(--accent-bg);color:var(--accent);cursor:pointer;">
               Background Change: Output
             </button>
             <button class="bg-mode-btn" data-mode="optionA" onclick="setBgOutputMode('optionA')"
@@ -265,7 +266,7 @@
           <!-- BG feature toggles -->
           <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;">
             <button id="bgToggleSeg" onclick="bgToggleSeg()"
-              style="padding:3px 8px;font-size:0.68rem;font-weight:600;border-radius:4px;border:1px solid var(--accent);background:#1a2240;color:var(--accent);cursor:default;opacity:0.85;"
+              style="padding:3px 8px;font-size:0.68rem;font-weight:600;border-radius:4px;border:1px solid var(--accent);background:var(--accent-bg);color:var(--accent);cursor:default;opacity:0.85;"
               title="Segmenter is always active when a background is selected">
               Segmenter: ON
             </button>
@@ -422,7 +423,7 @@
 
       <!-- Face-swapped output -->
       <div class="video-panel">
-        <div class="video-label" style="background:rgba(79,110,247,0.8);">AI Faceswap Output</div>
+        <div class="video-label" style="background:var(--accent);color:#fff;">AI Faceswap Output</div>
         <div class="video-placeholder" id="remotePlaceholder">
           <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"

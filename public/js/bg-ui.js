@@ -38,7 +38,7 @@ function _drawBgImage(ctx, img, w, h) {
     else         { sh = sw / ca; sy = (img.naturalHeight - sh) / 2; }
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
   } else {
-    ctx.fillStyle = '#1a1a2e';
+    ctx.fillStyle = '#2a1215';
     ctx.fillRect(0, 0, w, h);
   }
 }
@@ -64,7 +64,7 @@ function _drawBackground(ctx, w, h, videoEl) {
     _drawBgImage(ctx, _presetImageCache[p.id], w, h);
   } else if (p.type === 'image') {
     if (_bgImageEl) _drawBgImage(ctx, _bgImageEl, w, h);
-    else { ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0, 0, w, h); }
+    else { ctx.fillStyle = '#2a1215'; ctx.fillRect(0, 0, w, h); }
   }
 }
 
