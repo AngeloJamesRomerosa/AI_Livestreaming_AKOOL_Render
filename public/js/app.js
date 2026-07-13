@@ -46,26 +46,28 @@ function logMetric(label, parts) {
 }
 
 /* ─── Tabs ───────────────────────────────────────────────────── */
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    const group = tab.parentElement;
-    group.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    const paneId = `tab-${tab.dataset.tab}`;
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-    document.getElementById(paneId)?.classList.add('active');
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const group = tab.parentElement;
+      group.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const paneId = `tab-${tab.dataset.tab}`;
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.getElementById(paneId)?.classList.add('active');
+    });
   });
-});
 
-document.querySelectorAll('.session-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    const panel = tab.closest('.session-panel');
-    if (!panel) return;
-    panel.querySelectorAll('.session-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    const paneId = tab.dataset.tab;
-    panel.querySelectorAll('.session-tab-pane').forEach(p => p.classList.remove('active'));
-    panel.querySelector(`#${paneId}`)?.classList.add('active');
+  document.querySelectorAll('.session-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const panel = tab.closest('.session-panel');
+      if (!panel) return;
+      panel.querySelectorAll('.session-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const paneId = tab.dataset.tab;
+      panel.querySelectorAll('.session-tab-pane').forEach(p => p.classList.remove('active'));
+      panel.querySelector(`#${paneId}`)?.classList.add('active');
+    });
   });
 });
 
