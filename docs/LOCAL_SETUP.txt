@@ -1,0 +1,135 @@
+AKOOL Livestream Faceswap -- Local Setup Guide
+================================================
+
+This guide walks you through downloading the project from GitHub,
+setting it up, and running it locally at http://localhost:8000.
+
+
+PREREQUISITES
+-------------
+Before you start, install the following:
+
+  1. Python 3.12
+       Download: https://www.python.org/downloads/
+       During install: CHECK "Add Python to PATH"
+       Verify: open a terminal and run:  python --version
+
+  2. Git
+       Download: https://git-scm.com/downloads
+       Verify: open a terminal and run:  git --version
+
+  3. Chrome or Edge (recommended browser)
+
+
+STEP 1 -- CLONE THE REPOSITORY
+--------------------------------
+Open a terminal (Command Prompt or PowerShell) and run:
+
+  git clone https://github.com/AngeloJamesRomerosa/AI_Livestreaming_AKOOL_Render.git
+  cd AI_Livestreaming_AKOOL_Render
+
+
+STEP 2 -- CREATE A VIRTUAL ENVIRONMENT
+----------------------------------------
+  python -m venv venv
+
+
+STEP 3 -- ACTIVATE THE VIRTUAL ENVIRONMENT
+--------------------------------------------
+Windows (Command Prompt):
+  venv\Scripts\activate.bat
+
+Windows (PowerShell):
+  venv\Scripts\Activate.ps1
+
+Mac / Linux:
+  source venv/bin/activate
+
+Your terminal prompt will change to show (venv) when active.
+
+
+STEP 4 -- INSTALL DEPENDENCIES
+--------------------------------
+  pip install -r requirements.txt
+
+This installs FastAPI, uvicorn, Pillow, httpx, and other packages.
+Only needed once (or after requirements.txt changes).
+
+
+STEP 5 -- CREATE YOUR .env FILE
+---------------------------------
+Create a file named exactly  .env  in the project root folder.
+Copy and paste the template below, then fill in your credentials:
+
+  ---------------------------------------------------------------
+  # Option A: Direct API Key (simpler)
+  AKOOL_API_KEY=your_api_key_here
+
+  # Option B: Client Credentials (comment out Option A if using this)
+  # AKOOL_CLIENT_ID=your_client_id_here
+  # AKOOL_CLIENT_SECRET=your_client_secret_here
+
+  PORT=8000
+
+  # Required for face image uploads to reach AKOOL servers.
+  # Use ngrok (see Step 6) or leave blank for basic testing.
+  PUBLIC_BASE_URL=https://your-ngrok-url.ngrok-free.app
+  ---------------------------------------------------------------
+
+Where to get your AKOOL credentials:
+  Log in at https://akool.com --> Dashboard --> API Keys
+
+
+STEP 6 -- (OPTIONAL) SET UP NGROK FOR FACE UPLOADS
+-----------------------------------------------------
+AKOOL needs to fetch the face image you upload from a public URL.
+Without this, auth and session start still work -- only face upload
+and face detection will fail.
+
+  1. Download ngrok: https://ngrok.com/download
+  2. In a second terminal, run:
+       ngrok http 8000
+  3. Copy the HTTPS URL shown (e.g. https://xxxx.ngrok-free.app)
+  4. Paste it into your .env as PUBLIC_BASE_URL
+  5. Restart the server (Step 7) after updating .env
+
+
+STEP 7 -- RUN THE SERVER
+--------------------------
+Make sure your virtual environment is active (see Step 3), then:
+
+  python app.py
+
+You should see:
+  INFO: Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+
+
+STEP 8 -- OPEN THE APP
+------------------------
+Open Chrome or Edge and go to:
+
+  http://localhost:8000
+
+Follow the on-screen steps:
+  1. Authenticate with your AKOOL credentials
+  2. Upload a source face image
+  3. Select stream quality
+  4. Click "Start Faceswap"
+
+
+STOPPING THE SERVER
+--------------------
+Press  Ctrl+C  in the terminal where the server is running.
+
+
+TROUBLESHOOTING
+---------------
+  Problem                          Fix
+  -------------------------------- ------------------------------------------------
+  'python' not recognized          Reinstall Python with "Add to PATH" checked
+  'pip' not recognized             Run: python -m pip install -r requirements.txt
+  Port 8000 already in use         Change PORT=8001 in .env, open localhost:8001
+  .env not loading                 Make sure the file is named .env (no .txt)
+  Face upload fails                Set up ngrok and update PUBLIC_BASE_URL in .env
+  Auth error 1101                  Token expired -- click Authenticate again in app
+  Auth error 1104                  AKOOL quota used up -- check your plan

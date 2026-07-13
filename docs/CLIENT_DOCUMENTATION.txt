@@ -1,0 +1,387 @@
+AKOOL Livestream Faceswap -- Client Documentation
+===================================================
+
+Project    : Real-Time AI Face Swap for Live Streaming
+Version    : Render Edition (browser-based processing)
+
+
+TABLE OF CONTENTS
+-----------------
+  0. Client User Guide (Start Here)
+  1. What the Client Expects
+  2. Live Streaming Platform Integration
+  3. Output Methods Summary
+  4. Known Limitations
+  5. Troubleshooting Quick Reference
+
+
+===============================================================================
+0. CLIENT USER GUIDE (START HERE)
+===============================================================================
+
+This section is written for the end user -- no technical knowledge required.
+Follow these steps every time you want to go live with AI face swap.
+
+
+WHAT YOU NEED BEFORE YOU START
+--------------------------------
+  - The app URL (e.g. https://your-app.onrender.com)
+  - Your AKOOL Client ID and Client Secret (or AKOOL API Key)
+  - A clear photo of the face you want to appear on stream (JPG or PNG,
+    one face visible, good lighting, facing forward)
+  - A modern browser (Chrome or Edge recommended)
+  - OBS Studio installed (if using OBS output), OR your RTMP stream key
+    from your streaming platform (if going live directly)
+
+NOTE: This version runs entirely in your browser. No software installation
+is needed beyond a browser. All AI processing happens in the cloud via AKOOL.
+
+
+WHAT THE SCREEN LOOKS LIKE
+----------------------------
+When you open the app, you will see:
+
+  LEFT SIDE -- Setup panels (accordion menus you open one by one):
+    [1] AI Model         -- which AI engine is active (AKOOL / Agora)
+    [2] Authentication   -- where you enter your AKOOL credentials
+    [3] Source Face      -- where you upload the target face photo
+    [4] Session          -- stream quality, background, and start/stop controls
+
+  RIGHT SIDE -- Live view area:
+    - Your Camera        -- your real webcam feed
+    - AI Faceswap Output -- the face-swapped result (appears after session starts)
+    - Virtual Camera Output panel -- tabs for OBS URL, Pop Out, Go Live
+    - Activity Log       -- messages and status shown here
+    - Performance Metrics -- live fps and latency numbers
+
+
+STEP-BY-STEP: HOW TO USE THE APP EVERY SESSION
+------------------------------------------------
+
+  STEP 1 -- Open the App
+  -----------------------
+  Open Chrome or Edge and go to the app URL.
+  Example: https://your-app.onrender.com
+
+  Allow camera access when the browser asks.
+  The left side shows setup panels. The right side shows your camera once
+  the session starts.
+
+
+  STEP 2 -- Authenticate
+  -----------------------
+  1. Click the "Authentication" panel to open it.
+  2. Choose your login method:
+       - "Credentials" tab: enter your Client ID and Client Secret
+       - "API Key" tab: enter your API Key directly
+  3. Click the "Authenticate" button.
+  4. The status indicator turns GREEN when successful.
+
+  If it fails: double-check your credentials and try again.
+  Error code 1101 means the token expired -- click Authenticate again.
+  Error code 1104 means your AKOOL quota is used up -- contact your provider.
+
+
+  STEP 3 -- Set Your Source Face
+  --------------------------------
+  1. Click the "Source Face Image" panel to open it.
+  2. Option A -- Upload from your computer: click "Upload" and select a photo.
+     Option B -- Paste an image URL: enter a public image URL in the text box.
+  3. Click "Detect Faces" to confirm the face is found.
+  4. A small preview of the detected face appears when successful.
+
+  Tips for best results:
+    - Use a clear, well-lit frontal photo
+    - Only one face should be visible
+    - JPG or PNG format, minimum 300x300 px
+    - No sunglasses, masks, or heavy shadows
+
+
+  STEP 4 -- Configure Stream Settings (inside Session panel)
+  -----------------------------------------------------------
+  1. Click the "Session" panel to open it.
+  2. Under "Stream Quality", choose your resolution and frame rate:
+       Auto (640x360)   -- lightest on your browser, good for testing
+       480p             -- balanced quality
+       720p             -- good quality (recommended)
+       1080p            -- highest quality, heavier on browser
+  3. Choose your frame rate: 15 / 25 / 30 fps
+  4. Background Removal (optional -- expand "Background Removal" section):
+       - Select a preset: Blur, Black, Classroom, Gym, White Room,
+         Pink Wall, Beach, or upload your own image
+       - Click "Preview Camera (BG Test)" to see the effect before starting
+       - Background Change: Output = applied to what OBS receives
+         Background Change: Input = applied to your camera before AKOOL
+
+
+  STEP 5 -- Start the Session
+  -----------------------------
+  1. Click "Start Faceswap".
+  2. The app takes 5-15 seconds to connect to AKOOL and join the channel.
+  3. Once ready, the AI Faceswap Output panel shows your face-swapped video.
+  4. The Activity Log shows "Live faceswap is active!" when ready.
+  5. The Virtual Camera Output panel appears -- connect this to your platform.
+
+
+  STEP 6 -- CONNECT TO YOUR STREAMING PLATFORM
+  ----------------------------------------------
+  Choose ONE method:
+
+  --- Option A: Using OBS (Recommended) ---
+
+    1. In the Virtual Camera Output panel, click "Copy" to copy the viewer URL.
+    2. Open OBS Studio.
+    3. In OBS: Sources --> + --> Browser Source --> paste the URL.
+    4. Set Width/Height to match your quality preset:
+         720p  --> Width: 1280  Height: 720
+         1080p --> Width: 1920  Height: 1080
+    5. Click OK. The AI face-swapped video appears in OBS.
+    6. OBS Settings --> Stream:
+         Select your platform (YouTube, Twitch, etc.)
+         Enter your Stream Key
+    7. Click "Start Streaming" in OBS.
+
+    IMPORTANT: Copy the OBS URL fresh at the start of every session.
+    The URL contains a one-time key that expires when the session ends.
+
+    Where to find your stream key:
+      YouTube  : YouTube Studio --> Go Live --> Stream Key
+      Twitch   : Creator Dashboard --> Settings --> Stream --> Primary Stream Key
+      Stripchat: Performer Dashboard --> Broadcast Settings --> Stream Key
+
+  --- Option B: Pop Out Window ---
+
+    1. Click "Open Pop Out Window" in the Virtual Camera Output panel.
+    2. A borderless window opens showing the AI stream.
+    3. In OBS: Sources --> + --> Window Capture --> select the popup window.
+    4. Configure OBS stream settings and start streaming.
+
+  --- Option C: Go Live Directly (No OBS) ---
+
+    1. Get your RTMP URL + stream key from your platform dashboard.
+    2. In the Virtual Camera Output panel, click the "Go Live" tab.
+    3. Paste the full RTMP URL (server + key combined).
+       Example: rtmp://a.rtmp.youtube.com/live2/YOUR-STREAM-KEY
+    4. Click "Go Live".
+    5. Check your platform dashboard -- stream appears live within 10-30 seconds.
+
+
+  STEP 7 -- While You Are Live
+  ------------------------------
+  - Keep the app browser tab OPEN AND VISIBLE while streaming.
+    This is important -- if you minimize or hide the tab, the frame relay
+    to OBS may slow down. Use a second monitor if possible.
+  - Watch the Activity Log for warnings or errors.
+  - Performance Metrics show FPS and latency.
+  - If the AI output looks frozen: stop and restart the session.
+
+
+  STEP 8 -- End the Session
+  --------------------------
+  1. Stop your stream on the platform first (OBS: "Stop Streaming").
+  2. Click "Stop Session" in the app.
+  3. The session ends and the AI output panel goes blank.
+  4. The OBS URL from this session is now expired -- do not reuse it.
+
+
+QUICK CHECKLIST BEFORE EVERY STREAM
+--------------------------------------
+  [ ] App is open in Chrome or Edge
+  [ ] Authenticated (status indicator is green)
+  [ ] Source face is uploaded and detected
+  [ ] Stream quality preset is selected
+  [ ] Session is started (AI Faceswap Output shows video)
+  [ ] OBS URL is freshly copied from the Virtual Camera Output panel
+  [ ] App tab is visible on screen (not minimized)
+  [ ] Streaming platform dashboard confirms stream is live
+  [ ] Activity Log shows no errors
+
+
+===============================================================================
+1. WHAT THE CLIENT EXPECTS
+===============================================================================
+
+CORE REQUIREMENT
+----------------
+Go live on a streaming platform (YouTube, Twitch, Stripchat, etc.) with a
+real camera feed replaced by an AI face-swapped version in real time.
+
+
+WHAT THE AI DOES
+----------------
+  - The client's face is replaced with a chosen target face via AKOOL's cloud AI.
+  - The background can optionally be removed or replaced (blur, solid color,
+    or a virtual background image).
+  - The output is a clean video stream that goes to OBS or directly to a platform.
+
+
+WHAT THE CLIENT CONTROLS
+--------------------------
+  Authentication     - Enter AKOOL credentials to activate the AI
+  Source Face        - Upload a photo of the face to swap onto
+  Stream Quality     - Resolution, FPS, and bitrate preset
+  Background         - Preset or custom image; applied to camera input or output
+  Output Method      - OBS Browser Source, Pop Out Window, or direct RTMP
+
+
+WHAT THE CLIENT SEES AS OUTPUT
+-------------------------------
+  [Webcam] --> [AKOOL AI Face Swap] --> [Output]
+                                         |-- OBS Browser Source (recommended)
+                                         |-- Pop Out Window    (OBS alternative)
+                                         +-- Go Live / RTMP    (direct, no OBS)
+
+
+===============================================================================
+2. LIVE STREAMING PLATFORM INTEGRATION
+===============================================================================
+
+METHOD A -- OBS BROWSER SOURCE (RECOMMENDED)
+---------------------------------------------
+Best for: Streamers already using OBS Studio
+
+Setup:
+  1. Start a faceswap session in the app.
+  2. Copy the viewer URL from the Virtual Camera Output panel.
+  3. OBS Studio:
+       Sources --> + --> Browser Source --> paste URL
+       Width/Height: match your quality preset (720p = 1280x720)
+       Check: Shutdown source when not visible
+       Check: Refresh browser when scene becomes active
+       Click OK
+  4. OBS Settings --> Stream:
+       Service: YouTube / Twitch / Custom RTMP
+       Server: your platform's RTMP ingest URL
+       Stream Key: your stream key
+       Apply --> OK
+  5. Click "Start Streaming"
+
+  Where to find stream keys:
+    YouTube  : YouTube Studio --> Go Live
+               RTMP Server: rtmp://a.rtmp.youtube.com/live2
+    Twitch   : Creator Dashboard --> Settings --> Stream
+               RTMP Server: rtmp://live.twitch.tv/app
+    Stripchat: Performer Dashboard --> Broadcast Settings
+
+  Notes:
+    - Always copy the OBS URL fresh at the start of each session
+    - If Browser Source goes black: right-click --> Refresh in OBS
+    - Keep the app tab visible on screen while streaming
+
+
+-----------------------------------------------------------------------
+
+METHOD B -- OBS WINDOW CAPTURE (POP OUT WINDOW)
+------------------------------------------------
+Best for: When Browser Source has issues, or as an alternative
+
+Setup:
+  1. Start a session --> click "Open Pop Out Window"
+  2. A borderless popup appears showing the AI stream
+  3. OBS: Sources --> + --> Window Capture --> select the popup
+  4. Configure OBS stream settings and go live (same as Method A, Steps 4-5)
+
+
+-----------------------------------------------------------------------
+
+METHOD C -- DIRECT RTMP (GO LIVE -- NO OBS REQUIRED)
+------------------------------------------------------
+Best for: Streaming directly to a platform without OBS
+
+Setup:
+  1. Get your RTMP URL and Stream Key from your platform:
+
+       Platform       RTMP Server URL                           Key Location
+       -------------  ----------------------------------------  ---------------------------
+       YouTube Live   rtmp://a.rtmp.youtube.com/live2           YouTube Studio --> Go Live
+       Twitch         rtmp://live.twitch.tv/app                 Creator Dashboard --> Stream
+       Stripchat      (shown in performer dashboard)            Performer Dashboard
+       Facebook Live  rtmps://live-api-s.facebook.com:443/rtmp  Facebook Live Producer
+
+  2. Combine: RTMP Server URL + / + Stream Key
+     Example: rtmp://a.rtmp.youtube.com/live2/xxxx-xxxx-xxxx-xxxx
+
+  3. Start a session --> click the "Go Live" tab in the Output panel
+  4. Paste the full RTMP URL
+  5. Click "Go Live"
+  6. Check your platform dashboard -- stream appears within 10-30 seconds
+
+
+===============================================================================
+3. OUTPUT METHODS SUMMARY
+===============================================================================
+
+  Method               OBS Needed?           Best Use Case
+  -------------------  --------------------  ----------------------------------
+  OBS Browser Source   Yes                   Standard OBS streaming setup
+  Pop Out Window       Yes (Window Capture)  Alternative to Browser Source
+  Go Live (RTMP)       No                    Simplest -- direct to platform
+
+
+===============================================================================
+4. KNOWN LIMITATIONS
+===============================================================================
+
+KEEP THE BROWSER TAB VISIBLE
+------------------------------
+What happens:
+  This version runs all frame processing in your browser (not on a server).
+  Chrome throttles background tabs -- if you minimize or switch away from the
+  app tab, the frame relay to OBS may slow down or stutter.
+
+What to do:
+  Keep the app tab open and visible while streaming. A second monitor works well.
+  The app uses a background keep-alive to reduce (but not eliminate) throttling.
+
+
+AI OUTPUT DELAY INCREASES OVER TIME
+--------------------------------------
+What happens:
+  The AI output may show a gradually increasing delay over the course of a
+  session -- starting around 300ms and possibly reaching 1 second or more
+  after 30-60 minutes.
+
+Why it happens:
+  AKOOL's AI cloud delivers processed frames in bursts. This is a limitation
+  on AKOOL's side and cannot be fully eliminated.
+
+What to do:
+  The stream stays continuous -- viewers will not notice since audio and video
+  are delayed equally. If delay feels too high, stop and restart the session.
+  Restarting every 45-60 minutes is recommended for long streams.
+
+
+OBS URL CHANGES EVERY SESSION
+--------------------------------
+What happens:
+  The URL for OBS Browser Source contains a one-time session key that expires
+  when the session ends. Reusing an old URL shows a black screen in OBS.
+
+What to do:
+  After starting a new session, always copy the URL fresh from the Output panel.
+
+
+NO VIRTUAL CAMERA (BUILT-IN WEBCAM)
+-------------------------------------
+The virtual webcam feature (for Zoom, Discord, Teams) is not available in
+this version. Use OBS Browser Source or Go Live (RTMP) instead.
+
+
+===============================================================================
+5. TROUBLESHOOTING QUICK REFERENCE
+===============================================================================
+
+  Symptom                           Likely Cause                 What To Do
+  --------------------------------  ---------------------------  ----------------------------------
+  OBS Browser Source black screen   Session URL expired          Copy URL fresh; right-click
+                                                                 Refresh in OBS
+  AI stream stutters or drops fps   Browser tab minimized        Keep app tab visible on screen
+  Background shows as black         Preset not matching          Select a preset and wait for
+                                                                 model to load (first use only)
+  Session error 1101                Login token expired          Click Authenticate again
+  Session error 1104                AKOOL quota used up          Contact your provider
+  Face not detected                 Photo quality issue          Use a clearer frontal photo
+  OBS relay keeps disconnecting     Rare server issue            Stop and restart the session
+  AI output delay increasing        Normal after 30-60 min       Stop and restart the session
+  Video quality looks poor          Resolution preset too low    Try 720p or 1080p preset
+  Background preview not working    Camera permission            Allow camera access in browser

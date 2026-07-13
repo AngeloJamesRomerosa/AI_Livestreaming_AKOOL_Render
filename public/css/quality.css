@@ -1,0 +1,128 @@
+/* YouTube-style quality list */
+.yt-quality-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+}
+
+.yt-quality-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.yt-quality-item:hover {
+  background: rgba(255,255,255,0.07);
+}
+
+.yt-check {
+  width: 14px;
+  font-size: 0.8rem;
+  color: var(--accent);
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.yt-res {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.yt-quality-item.active .yt-res {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.yt-info {
+  font-size: 0.65rem;
+  color: var(--muted);
+  white-space: nowrap;
+  opacity: 0.7;
+}
+
+.yt-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  background: rgba(220,38,38,0.15);
+  color: var(--accent);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid rgba(220,38,38,0.35);
+  letter-spacing: 0.03em;
+}
+
+/* Frame rate + bitrate controls */
+.qc-controls {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.qc-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qc-label {
+  font-size: 0.7rem;
+  color: var(--muted);
+  width: 62px;
+  flex-shrink: 0;
+}
+
+.qc-btns {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.qc-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+.qc-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.qc-btn.active {
+  background: rgba(220,38,38,0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.qc-row-bitrate .qc-btns {
+  flex-wrap: wrap;
+}
+
+.qc-btn-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.qc-btn-val {
+  display: block;
+  font-size: 0.62rem;
+  opacity: 0.75;
+  margin-top: 1px;
+}

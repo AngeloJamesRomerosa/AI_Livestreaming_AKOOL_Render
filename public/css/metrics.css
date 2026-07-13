@@ -1,0 +1,151 @@
+/* ── Performance Metrics panel ───────────────────────────────── */
+.metrics-panel { border-color: #1e3a2f; }
+
+.metrics-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.session-timer {
+  font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--success);
+  letter-spacing: 0.05em;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr 80px;
+  gap: 6px 10px;
+  align-items: center;
+}
+
+.mg-head {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mg-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.mg-val {
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  color: var(--text);
+  transition: color 0.3s;
+}
+
+.mg-target {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+/* Progress bar */
+.bar-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--success);
+  transition: width 0.5s ease, background 0.3s;
+  width: 0%;
+}
+
+/* Validation summary */
+.validation-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.val-item {
+  flex: 1;
+  text-align: center;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--border);
+  color: var(--muted);
+  transition: all 0.3s;
+}
+
+.val-item.pass       { background: #0f2d1f; color: var(--success);    border: 1px solid #1a5c3a; }
+.val-item.light-warn { background: #2d2b0a; color: var(--light-warn); border: 1px solid #5c540a; }
+.val-item.warn       { background: #2d220f; color: var(--warn);       border: 1px solid #5c440f; }
+.val-item.fail       { background: #2d0f0f; color: var(--danger);     border: 1px solid #5c1a1a; }
+
+/* Metric value colors */
+.mg-val.good       { color: var(--success); }
+.mg-val.light-warn { color: var(--light-warn); }
+.mg-val.warn       { color: var(--warn); }
+.mg-val.bad        { color: var(--danger); }
+
+/* OBS panel */
+.obs-steps {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.obs-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.obs-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--border);
+  color: var(--text);
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.obs-panel { border-color: #3d1515; }
+
+.vcam-method { animation: fadeIn 0.15s ease; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+[data-theme="light"] .val-item.pass       { background: #dcfce7; border-color: #86efac; color: #15803d; }
+[data-theme="light"] .val-item.light-warn { background: #fef9c3; border-color: #fde047; color: #854d0e; }
+[data-theme="light"] .val-item.warn       { background: #ffedd5; border-color: #fdba74; color: #9a3412; }
+[data-theme="light"] .val-item.fail       { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+[data-theme="light"] .metrics-panel       { border-color: var(--border); }
+[data-theme="light"] .obs-panel           { border-color: var(--border); }
+
+.method-desc {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AKOOL Livestream Faceswap</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@500;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css?v=2" />
+  <link rel="stylesheet" href="css/panels.css?v=2" />
+  <link rel="stylesheet" href="css/metrics.css?v=2" />
+  <link rel="stylesheet" href="css/features.css?v=2" />
+  <link rel="stylesheet" href="css/quality.css?v=2" />
+  <link rel="stylesheet" href="css/status.css?v=1" />
+  <link rel="stylesheet" href="css/mobile.css?v=1" />
+</head>
+<body>
+
+<header>
+  <h1>AKOOL Livestream Faceswap</h1>
+  <span class="badge">Demo</span>
+  <div id="layoutSwitch">
+    <span id="layoutAutoIndicator">Auto</span>
+    <button id="themeToggle"      class="layout-btn" onclick="toggleTheme()"        title="Toggle light/dark mode">☀</button>
+    <button id="layoutMobileBtn"  class="layout-btn" onclick="setLayout('mobile')"  title="Switch to mobile layout">📱</button>
+    <button id="layoutDesktopBtn" class="layout-btn" onclick="setLayout('desktop')" title="Switch to desktop layout">🖥</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ── Left sidebar: config panels ── -->
+  <aside>
+
+    <!-- AI Model provider selector -->
+    <div class="card accordion open">
+      <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;align-items:center;gap:8px;"><span class="step">1</span> AI Model</div>
+        <span class="accordion-arrow">▾</span>
+      </div>
+      <div class="accordion-body" style="overflow:visible;">
+        <div class="provider-dropdown" id="providerDropdown">
+          <button class="provider-trigger" id="providerTrigger" onclick="toggleProviderDropdown()">
+            <span id="providerSelected">Loading…</span>
+            <span class="provider-chevron">▾</span>
+          </button>
+          <div class="provider-options" id="providerOptions"></div>
+        </div>
+        <p class="hint" id="providerHint">Loading providers…</p>
+      </div>
+    </div>
+
+    <!-- Auth -->
+    <div class="card accordion open">
+      <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;align-items:center;gap:8px;"><span class="step">2</span> Authentication</div>
+        <span class="accordion-arrow">▾</span>
+      </div>
+      <div class="accordion-body">
+
+      <div class="tabs">
+        <div class="tab active" data-tab="credentials">Credentials</div>
+        <div class="tab" data-tab="apikey">API Key</div>
+      </div>
+
+      <div class="tab-pane active" id="tab-credentials">
+        <label>Client ID</label>
+        <input type="text" id="clientId" placeholder="akool_client_id" />
+        <label>Client Secret</label>
+        <input type="password" id="clientSecret" placeholder="••••••••••••" />
+      </div>
+
+      <div class="tab-pane" id="tab-apikey">
+        <label>API Key</label>
+        <input type="password" id="apiKey" placeholder="••••••••••••" />
+        <p class="hint">Set via server .env or enter here.</p>
+      </div>
+
+      <button class="btn-primary" id="btnAuth" onclick="handleAuth()">Authenticate</button>
+      <div class="status-row">
+        <div class="dot" id="authDot"></div>
+        <span id="authStatus">Not authenticated</span>
+      </div>
+
+      </div>
+    </div>
+
+    <!-- Credit balance -->
+    <div class="card" id="creditCard" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;color:var(--text-muted);">AKOOL Credits</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="creditBalance" style="font-weight:600;">—</span>
+          <button class="btn-primary" style="padding:4px 10px;font-size:12px;" onclick="fetchCredit()">Check</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Source image -->
+    <div class="card accordion open">
+      <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;align-items:center;gap:8px;"><span class="step">3</span> Source Face Image</div>
+        <span class="accordion-arrow">▾</span>
+      </div>
+      <div class="accordion-body">
+
+      <label>Image URL (publicly accessible)</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="sourceImageUrl" placeholder="https://example.com/face.jpg" />
+        <button class="btn-secondary" onclick="document.getElementById('fileInput').click()"
+          style="flex-shrink:0;white-space:nowrap;" title="Upload PNG / JPG from your computer">
+          Upload
+        </button>
+      </div>
+      <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+        style="display:none;" onchange="handleFileUpload(event)" />
+
+      <div id="uploadWarning" class="upload-warning" style="display:none;">
+        <strong>Uploaded image won't reach AKOOL on localhost.</strong>
+        To fix, expose your server with ngrok:<br>
+        1. <code>ngrok http 8000</code><br>
+        2. Copy the <code>https://….ngrok-free.app</code> URL<br>
+        3. Add <code>PUBLIC_BASE_URL=https://….ngrok-free.app</code> to your <code>.env</code><br>
+        4. Restart the server and re-upload the image
+      </div>
+
+      <p class="hint">PNG, JPG or JPEG · Clear, front-facing photo works best.</p>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+        <button class="btn-secondary" onclick="handleDetectFaces()">Detect Faces</button>
+        <img class="face-preview" id="facePreview" alt="Detected face" />
+        <button class="btn-secondary" id="btnClearFace" onclick="clearDetectedFace()" style="display:none;flex-shrink:0;" title="Remove detected face">Remove</button>
+      </div>
+
+      <div class="response-preview" id="detectResponse"></div>
+
+      </div>
+    </div>
+
+    <!-- Session controls -->
+    <div class="card accordion open">
+      <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;align-items:center;gap:8px;"><span class="step">4</span> Session</div>
+        <span class="accordion-arrow">▾</span>
+      </div>
+      <div class="accordion-body">
+
+      <!-- ── AKOOL / Agora-specific settings ── -->
+      <div class="provider-settings" data-provider="akool">
+
+      <!-- ── Stream Quality ── -->
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          Stream Quality <span class="accordion-arrow">▾</span>
+        </div>
+        <div class="accordion-body">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;">Agora Input Frame Features</div>
+          <div style="font-size:0.7rem;color:var(--text-muted,#888);margin-bottom:8px;">Controls the resolution, frame rate, and bitrate of the raw video frame sent into the Agora stream.</div>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);margin-bottom:6px;">Frame Input Quality</div>
+          <div class="yt-quality-list" id="qualitySelector">
+            <div class="yt-quality-item active" data-preset="auto">
+              <span class="yt-check">✓</span>
+              <span class="yt-res">Auto</span>
+              <span class="yt-info">640×360</span>
+            </div>
+            <div class="yt-quality-item" data-preset="1080p">
+              <span class="yt-check"></span>
+              <span class="yt-res">1080p</span>
+              <span class="yt-badge">HD</span>
+              <span class="yt-info">1920×1080</span>
+            </div>
+            <div class="yt-quality-item" data-preset="720p">
+              <span class="yt-check"></span>
+              <span class="yt-res">720p</span>
+              <span class="yt-badge">HD</span>
+              <span class="yt-info">1280×720</span>
+            </div>
+            <div class="yt-quality-item" data-preset="480p">
+              <span class="yt-check"></span>
+              <span class="yt-res">480p</span>
+              <span class="yt-info">848×480</span>
+            </div>
+            <div class="yt-quality-item" data-preset="360p">
+              <span class="yt-check"></span>
+              <span class="yt-res">360p</span>
+              <span class="yt-info">640×360</span>
+            </div>
+            <div class="yt-quality-item" data-preset="240p">
+              <span class="yt-check"></span>
+              <span class="yt-res">240p</span>
+              <span class="yt-info">424×240</span>
+            </div>
+            <div class="yt-quality-item" data-preset="144p">
+              <span class="yt-check"></span>
+              <span class="yt-res">144p</span>
+              <span class="yt-info">256×144</span>
+            </div>
+          </div>
+
+          <!-- Frame Rate + Bitrate controls (buttons built dynamically from /api/stream-profiles) -->
+          <div class="qc-controls">
+            <div class="qc-row">
+              <span class="qc-label">Frame Rate</span>
+              <div class="qc-btns" id="fpsSelector"></div>
+            </div>
+            <div class="qc-row qc-row-bitrate">
+              <span class="qc-label">Bitrate</span>
+              <div class="qc-btns" id="bitrateSelector"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+</div><!-- end provider-settings[akool] -->
+
+      <!-- ── Face Detection Quality Tester ── -->
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          Face Detection Quality Tester <span class="accordion-arrow">▾</span>
+        </div>
+        <div class="accordion-body">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:0.78rem;color:var(--muted);">Face Lock (AI detect)</span>
+              <label class="toggle-wrap" title="TinyFaceDetector: scores face presence in output (loads ~820 KB)">
+                <input type="checkbox" id="faceLockToggle" onchange="toggleFaceLock(this.checked)" />
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                <span class="toggle-label" id="faceLockLabel">AI Lock</span>
+              </label>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:0.78rem;color:var(--muted);">Face Match (similarity)</span>
+              <label class="toggle-wrap" title="Compare output face against source image (loads ~700 KB additional)">
+                <input type="checkbox" id="faceMatchToggle" onchange="toggleFaceMatch(this.checked)" />
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                <span class="toggle-label" id="faceMatchLabel">AI Match</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Background Removal ── -->
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          Background Removal <span class="accordion-arrow">▾</span>
+        </div>
+        <div class="accordion-body">
+          <!-- Mode selector -->
+          <div style="display:flex;gap:6px;margin-bottom:6px;">
+            <button class="bg-mode-btn active" data-mode="optionB" onclick="setBgOutputMode('optionB')"
+              style="flex:1;padding:4px 0;font-size:0.72rem;border:1px solid var(--accent);border-radius:4px;background:var(--accent-bg);color:var(--accent);cursor:pointer;">
+              Background Change: Output
+            </button>
+            <button class="bg-mode-btn" data-mode="optionA" onclick="setBgOutputMode('optionA')"
+              style="flex:1;padding:4px 0;font-size:0.72rem;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--muted);cursor:pointer;">
+              Background Change: Input
+            </button>
+          </div>
+          <div id="bgModeNote" style="display:none;font-size:0.71rem;color:var(--muted);margin-bottom:6px;">
+            Input mode — blur is applied to your camera before AKOOL processes it. Start or restart a session to apply.
+          </div>
+          <div id="bgModeNoteB" style="display:block;font-size:0.71rem;color:var(--muted);margin-bottom:6px;">
+            Output mode — blur appears in the OBS Browser Source, not the panels above.
+          </div>
+          <!-- BG feature toggles -->
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;">
+            <button id="bgToggleSeg" onclick="bgToggleSeg()"
+              style="padding:3px 8px;font-size:0.68rem;font-weight:600;border-radius:4px;border:1px solid var(--accent);background:var(--accent-bg);color:var(--accent);cursor:default;opacity:0.85;"
+              title="Segmenter is always active when a background is selected">
+              Segmenter: ON
+            </button>
+            <button id="bgTogglePose" onclick="bgToggle('pose')"
+              style="padding:3px 8px;font-size:0.68rem;font-weight:600;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;">
+              Pose: OFF
+            </button>
+            <button id="bgToggleHand" onclick="bgToggle('hand')"
+              style="padding:3px 8px;font-size:0.68rem;font-weight:600;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;">
+              Hands: OFF
+            </button>
+            <button id="bgToggleFace" onclick="bgToggle('face')"
+              style="padding:3px 8px;font-size:0.68rem;font-weight:600;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;">
+              Face: OFF
+            </button>
+            <button id="bgToggleOutline" onclick="bgToggle('outline')"
+              style="padding:3px 8px;font-size:0.68rem;font-weight:600;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;">
+              Outline: OFF
+            </button>
+            <button id="bgToggleGpu" onclick="bgToggleGpu()"
+              style="padding:3px 8px;font-size:0.68rem;font-weight:600;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;">
+              GPU: checking…
+            </button>
+          </div>
+          <!-- Background swatches -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px;">
+            <div class="bg-opt active" data-bg="none"       onclick="setBgPreset('none')">None</div>
+            <div class="bg-opt"        data-bg="blur"       onclick="setBgPreset('blur')">Blur</div>
+            <div class="bg-opt"        data-bg="black"      onclick="setBgPreset('black')"
+              style="background:#000;color:#fff;border-color:#000;">Black</div>
+            <div class="bg-opt"        data-bg="classroom"  onclick="setBgPreset('classroom')"
+              style="background-image:url('/img/bg/classroom.jpeg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Classroom</div>
+            <div class="bg-opt"        data-bg="gym"        onclick="setBgPreset('gym')"
+              style="background-image:url('/img/bg/gym.png');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Gym</div>
+            <div class="bg-opt"        data-bg="white_room" onclick="setBgPreset('white_room')"
+              style="background-image:url('/img/bg/white_room.png');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">White Room</div>
+            <div class="bg-opt"        data-bg="pink_wall"  onclick="setBgPreset('pink_wall')"
+              style="background-image:url('/img/bg/pink_wall.jpg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Pink Wall</div>
+            <div class="bg-opt"        data-bg="beach"      onclick="setBgPreset('beach')"
+              style="background-image:url('/img/bg/beach.jpg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Beach</div>
+            <div class="bg-opt"        data-bg="image"      onclick="handleBgImageClick()"
+              style="border-style:dashed;">+ Image</div>
+          </div>
+          <input type="file" id="bgImageInput" accept="image/*"
+            style="display:none;" onchange="handleBgImageUpload(event)" />
+          <button class="btn-secondary" id="btnCameraPreview" onclick="toggleCameraPreview()"
+            style="width:100%;margin-bottom:6px;">
+            Preview Camera (BG Test)
+          </button>
+        </div>
+      </div>
+
+      </div><!-- end accordion-body -->
+    </div><!-- end session card -->
+
+    <!-- ── Status panel — always visible, cannot be closed ── -->
+    <div class="card">
+      <div id="sessionInfo" style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;">
+        No active session.
+      </div>
+      <button class="btn-primary" id="btnStart" onclick="handleStart()" disabled>
+        Start Faceswap
+      </button>
+      <button class="btn-danger" id="btnStop" onclick="handleStop()" disabled>
+        Stop &amp; Close Session
+      </button>
+
+      <div id="cameraConflictNotice" style="display:none;margin-top:10px;padding:10px;border:1px solid var(--warn);border-radius:6px;font-size:0.78rem;line-height:1.6;">
+        <strong style="color:var(--warn);">Webcam is in use by another app/website.</strong><br>
+        Go to app/website → change camera to <strong>OBS Virtual Camera</strong><br>
+        then click Retry below.
+        <button class="btn-secondary" onclick="retryCamera()"
+          style="width:100%;margin-top:8px;border-color:var(--warn);color:var(--warn);">
+          Retry Camera
+        </button>
+      </div>
+
+      <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);margin-bottom:10px;">
+        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:6px;">AI Models <span style="font-weight:400;text-transform:none;opacity:0.6;">(Optional)</span></div>
+        <div class="model-row" id="msr-faceLock">
+          <span class="msr-dot"></span>
+          <div class="msr-label">
+            <span class="msr-name">Face Lock</span>
+            <span class="msr-sub">TinyFaceDetector</span>
+          </div>
+          <div class="msr-states">
+            <span class="msr-badge msr-ready-badge">Ready</span>
+            <span class="msr-badge msr-active-badge">Active</span>
+          </div>
+        </div>
+        <div class="model-row" id="msr-faceMatch">
+          <span class="msr-dot"></span>
+          <div class="msr-label">
+            <span class="msr-name">Face Match</span>
+            <span class="msr-sub">FaceLandmark68 + FaceRecognition</span>
+          </div>
+          <div class="msr-states">
+            <span class="msr-badge msr-ready-badge">Ready</span>
+            <span class="msr-badge msr-active-badge">Active</span>
+          </div>
+        </div>
+        <div class="model-row" id="msr-background">
+          <span class="msr-dot"></span>
+          <div class="msr-label">
+            <span class="msr-name">Background</span>
+            <span class="msr-sub">MediaPipe SelfieSegmentation</span>
+          </div>
+          <div class="msr-states">
+            <span class="msr-badge msr-ready-badge">Ready</span>
+            <span class="msr-badge msr-active-badge">Active</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:6px;">Services</div>
+        <div class="model-row" id="msr-agora">
+          <span class="msr-dot"></span>
+          <span class="msr-name">Agora SDK</span>
+          <span class="msr-status">Checking…</span>
+        </div>
+        <div class="model-row" id="msr-akool">
+          <span class="msr-dot"></span>
+          <span class="msr-name">AKOOL API</span>
+          <span class="msr-status">Not authenticated</span>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── Right: video + log ── -->
+  <div class="video-section">
+
+    <div class="video-grid">
+      <!-- Local camera -->
+      <div class="video-panel">
+        <div class="video-label">Your Camera</div>
+        <button class="flip-cam-btn" onclick="flipCamera()" title="Switch camera">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
+            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+          </svg>
+        </button>
+        <div class="video-placeholder" id="localPlaceholder">
+          <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+          </svg>
+          Camera inactive
+        </div>
+        <div id="local-video" style="width:100%;height:100%;"></div>
+        <div class="vid-log" id="camLog"><span class="vid-log-dot"></span><span class="vid-log-text">Camera inactive</span></div>
+      </div>
+
+      <!-- Face-swapped output -->
+      <div class="video-panel">
+        <div class="video-label" style="background:var(--accent);color:#fff;">AI Faceswap Output</div>
+        <div class="video-placeholder" id="remotePlaceholder">
+          <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          Waiting for AI stream…
+        </div>
+        <div id="remote-video" style="width:100%;height:100%;"></div>
+        <div class="vid-log" id="aiLog"><span class="vid-log-dot"></span><span class="vid-log-text">No session</span></div>
+      </div>
+    </div>
+
+    <!-- Option B BG preview — shows exactly what the OBS relay sends out -->
+    <div id="bgPreviewPanel" style="display:none;">
+      <div style="display:flex;gap:8px;">
+        <div class="video-panel" style="flex:1;aspect-ratio:16/9;">
+          <div class="video-label" style="background:rgba(52,211,153,0.8);">BG Output</div>
+          <canvas id="bgPreviewCanvas" style="width:100%;height:100%;object-fit:cover;display:block;"></canvas>
+          <div class="vid-log" id="bgLog"><span class="vid-log-dot"></span><span class="vid-log-text">Inactive</span></div>
+        </div>
+        <div class="video-panel" style="flex:1;aspect-ratio:16/9;">
+          <div class="video-label" style="background:rgba(99,102,241,0.8);">Landmarks Debug</div>
+          <canvas id="bgLandmarkCanvas" style="width:100%;height:100%;object-fit:cover;display:block;"></canvas>
+          <div class="vid-log" id="lmLog"><span class="vid-log-dot"></span><span class="vid-log-text">Inactive</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Metrics panel — shown after remote stream connects -->
+    <div class="card metrics-panel" id="metricsPanel" style="display:none;">
+
+      <div class="metrics-header">
+        <div class="card-title" style="margin:0;">Performance Metrics</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="status-row" style="margin:0;">
+            <div class="dot" id="overallDot"></div>
+            <span id="overallLabel" style="font-size:0.75rem;">Measuring…</span>
+          </div>
+          <div class="session-timer" id="sessionTimer">00:00</div>
+        </div>
+      </div>
+
+      <!-- Metrics grid: label | current | average | target -->
+      <div class="metrics-grid">
+        <div class="mg-head"></div>
+        <div class="mg-head">Current</div>
+        <div class="mg-head">Average</div>
+        <div class="mg-head">Target</div>
+
+        <!-- FPS row -->
+        <div class="mg-label">FPS</div>
+        <div class="mg-val" id="mFps">—</div>
+        <div class="mg-val" id="mAvgFps">—</div>
+        <div class="mg-target">25 – 30</div>
+
+        <!-- Latency row -->
+        <div class="mg-label">Latency</div>
+        <div class="mg-val" id="mLatency">—</div>
+        <div class="mg-val" id="mAvgLatency">—</div>
+        <div class="mg-target">&lt; 400 ms</div>
+
+        <!-- Face-lock row -->
+        <div class="mg-label">Face Lock</div>
+        <div class="mg-val" id="mFaceLock">—</div>
+        <div class="mg-val" id="mAvgFaceLock">—</div>
+        <div class="mg-target">&gt; 75 %</div>
+
+        <!-- Face Match row — shown when Face Match toggle is on -->
+        <div class="mg-label" id="mFaceMatchRow0" style="display:none;">Face Match</div>
+        <div class="mg-val"   id="mFaceMatch"     style="display:none;">—</div>
+        <div class="mg-val"   id="mFaceMatchAvg"  style="display:none;">—</div>
+        <div class="mg-target" id="mFaceMatchRow3" style="display:none;">&gt; 60 %</div>
+
+        <!-- Vcam FPS row — Method B only -->
+      </div>
+
+      <!-- Face-lock progress bar -->
+      <div style="margin-top:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-bottom:4px;">
+          <span>Face-lock rate</span><span id="faceLockPct">—</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" id="faceLockBar"></div></div>
+      </div>
+
+      <!-- Validation summary -->
+      <div class="validation-row" id="validationRow" style="display:none;">
+        <div class="val-item" id="valFps">FPS</div>
+        <div class="val-item" id="valLatency">Latency</div>
+        <div class="val-item" id="valFaceLock">Face Lock</div>
+        <div class="val-item" id="valFaceMatch" style="display:none;">Face Match</div>
+      </div>
+
+    </div>
+
+    <!-- Virtual Camera Output panel — always visible; Go Live works without a session -->
+    <div class="card obs-panel" id="obsPanel" style="padding:0;overflow:hidden;">
+      <div class="accordion-header" onclick="toggleAccordion('obsPanel')"
+           style="padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
+        <div class="card-title" style="margin:0;">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="flex-shrink:0">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14
+                 M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+          </svg>
+          Virtual Camera Output
+        </div>
+        <svg class="accordion-chevron" id="obsPanelChevron" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+      <div id="obsPanelBody" style="display:none;padding:0 20px 20px;">
+
+      <!-- Method selector -->
+      <div class="tabs" id="vcamMethodTabs">
+        <div class="tab" data-tab="method-browser" onclick="switchVcamMethod('browser')">Media Source</div>
+        <div class="tab" data-tab="method-popout"  onclick="switchVcamMethod('popout')">Pop Out Window</div>
+        <div class="tab active" data-tab="method-golive" onclick="switchVcamMethod('golive')">Go Live</div>
+      </div>
+
+      <!-- ── Media Source (server MJPEG relay — browser tab can be minimized) ── -->
+      <div id="method-browser" class="vcam-method" style="display:none;">
+        <p class="method-desc">
+          The server streams your AI output as MJPEG — paste the URL into OBS as a
+          <strong>Media Source</strong>. Your browser tab can be minimized and the
+          stream will keep running.
+        </p>
+
+        <label>Media Source URL</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="obsViewerUrl" readonly style="font-size:0.75rem;cursor:text;" />
+          <button class="btn-secondary" onclick="copyObsUrl()" style="flex-shrink:0;white-space:nowrap;">Copy</button>
+        </div>
+
+        <div class="obs-steps" style="margin-top:12px;">
+          <div class="obs-step"><span class="obs-num">1</span>OBS → <strong>+</strong> → <strong>Media Source</strong> → uncheck "Local file"</div>
+          <div class="obs-step"><span class="obs-num">2</span>Paste the URL above into the <strong>Input</strong> field → OK</div>
+          <div class="obs-step"><span class="obs-num">3</span>OBS toolbar → <strong>Start Virtual Camera</strong></div>
+          <div class="obs-step"><span class="obs-num">4</span>In streaming site/app/web → select <strong>OBS Virtual Camera</strong></div>
+        </div>
+      </div>
+
+      <!-- ── Pop Out Window (server MJPEG — no browser chrome interference) ── -->
+      <div id="method-popout" class="vcam-method" style="display:none;">
+        <p class="method-desc">
+          Opens the AI output in a clean standalone window fed directly from the server.
+          OBS captures it via <strong>Window Capture</strong> — browser tab can be minimized.
+        </p>
+
+        <div style="margin-bottom:12px;">
+          <button class="btn-secondary" onclick="popOutViewer()" style="width:100%;">Open Pop Out Window</button>
+        </div>
+
+        <div class="obs-steps">
+          <div class="obs-step"><span class="obs-num">1</span>Click <strong>Open Pop Out Window</strong> above</div>
+          <div class="obs-step"><span class="obs-num">2</span>OBS → <strong>+</strong> → <strong>Window Capture</strong> → select the popup window</div>
+          <div class="obs-step"><span class="obs-num">3</span>Right-click the source → <strong>Filters</strong> → add <strong>Crop/Pad</strong> to trim browser chrome (Top=70)</div>
+          <div class="obs-step"><span class="obs-num">4</span>OBS toolbar → <strong>Start Virtual Camera</strong></div>
+        </div>
+      </div>
+
+      <!-- ── Go Live: server-side RTMP via ffmpeg (no OBS needed) ── -->
+      <div id="method-golive" class="vcam-method">
+        <p class="method-desc">
+          Stream directly to any RTMP platform (YouTube, Twitch, Facebook, etc.)
+          — no OBS needed. The server encodes your video + mic audio and pushes
+          it straight to your streaming URL.
+        </p>
+
+        <label>RTMP URL</label>
+        <input type="text" id="rtmpUrl" placeholder="rtmp://live.your-platform.com/live" />
+
+        <label>Stream Key</label>
+        <input type="password" id="rtmpKey" placeholder="••••••••••••••••" />
+        <p class="hint">Your stream key is never stored — it is used only for this session.</p>
+
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;">
+          <button class="btn-primary" id="rtmpBtn" onclick="startRtmp()" style="margin-top:0;flex:1;">
+            Go Live
+          </button>
+          <div class="status-row" style="margin:0;flex-shrink:0;">
+            <div class="dot" id="rtmpDot"></div>
+            <span id="rtmpStatus" style="font-size:0.75rem;">Not streaming</span>
+          </div>
+        </div>
+
+        <div class="obs-steps" style="margin-top:14px;">
+          <div class="obs-step"><span class="obs-num">1</span>Copy your RTMP URL + stream key from YouTube/Twitch/Facebook Studio</div>
+          <div class="obs-step"><span class="obs-num">2</span>Paste them above and click <strong>Go Live</strong></div>
+          <div class="obs-step"><span class="obs-num">3</span>Allow microphone access when prompted — audio is captured automatically</div>
+          <div class="obs-step"><span class="obs-num">4</span>Click <strong>Stop Streaming</strong> when done</div>
+        </div>
+
+        <div class="upload-warning" style="display:block;margin-top:12px;">
+          <strong>Requires ffmpeg on the server machine.</strong><br>
+          Install ffmpeg and make sure it is on your system PATH before using this feature.
+          The server checks for ffmpeg on startup and will show an error if it is not found.
+        </div>
+      </div>
+
+
+      </div><!-- /obsPanelBody -->
+    </div>
+
+    <!-- Log -->
+    <div class="card" id="logPanel" style="padding:0;overflow:hidden;">
+      <div class="accordion-header" onclick="toggleAccordion('logPanel')"
+           style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <span class="card-title" style="margin:0;">Activity Log</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="btn-secondary" onclick="clearLog();event.stopPropagation()" style="padding:4px 10px;font-size:0.72rem;">Clear</button>
+          <svg class="accordion-chevron open" id="logPanelChevron" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </div>
+      </div>
+      <div id="logPanelBody">
+        <div class="log-panel" id="log"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Agora Web SDK -->
+<script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.20.0.js"></script>
+<script src="js/layout.js?v=2"></script>
+<!-- App modules (load order matters — app.js exposes shared state first) -->
+<script src="js/quality-selector.js?v=1"></script>
+<script src="js/app.js?v=1"></script>
+<script src="js/auth.js?v=1"></script>
+<script src="js/camera-ios-capture.js?v=1"></script>
+<script src="js/camera-conflict.js?v=1"></script>
+<script src="js/provider.js?v=1"></script>
+<script src="js/pipeline-poller.js?v=1"></script>
+<script src="js/bg-engine.js?v=1"></script>
+<script src="js/bg-ui.js?v=2"></script>
+<script src="js/bg-toggles.js?v=2"></script>
+<script src="js/bg-preview.js?v=1"></script>
+<script src="js/session.js?v=1"></script>
+<script src="js/metrics-render.js?v=1"></script>
+<script src="js/face-match.js?v=1"></script>
+<script src="js/face-metrics-poller.js?v=1"></script>
+<script src="js/metrics-collect.js?v=1"></script>
+<script src="js/faceai.js?v=1"></script>
+<script src="js/obs.js?v=2"></script>
+<script src="js/rtmp-audio.js?v=1"></script>
+<script src="js/rtmp-camera-fallback.js?v=1"></script>
+<script src="js/rtmp.js?v=1"></script>
+<script>
+  // Apply mobile-specific behaviors after all modules are loaded
+  if (isMobileLayout()) switchVcamMethod('golive');
+</script>
+</body>
+</html>
+

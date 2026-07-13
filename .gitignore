@@ -1,0 +1,45 @@
+# Environment variables — never commit secrets
+.env
+
+# Python virtual environment
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Uploaded images — ephemeral, no need to track
+public/uploads/
+
+# Node (leftover from earlier experiment — not needed)
+node_modules/
+package-lock.json
+package.json
+server.js
+
+# Loose image files in project root
+*.jpg
+*.jpeg
+*.png
+
+# Exception: bundled background images are part of the app
+!public/img/bg/*.jpg
+!public/img/bg/*.jpeg
+!public/img/bg/*.png
+
+# Downloaded ML model files — fetched at runtime by routes/background.py
+*.tflite
+
+# Playwright browser binaries — installed at build time on Render, not committed
+.playwright-browsers/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Test scratch file
+test.txt

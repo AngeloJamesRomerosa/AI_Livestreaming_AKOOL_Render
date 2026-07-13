@@ -1,0 +1,22 @@
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+httpx>=0.27.0
+python-dotenv>=1.0.0
+python-multipart>=0.0.9
+playwright>=1.40.0
+mediapipe>=0.10.0
+opencv-python-headless>=4.8.0
+numpy>=1.24.0
+pillow>=10.0.0
+redis[asyncio]>=5.0.0
+psutil>=5.9.0
+PyTurboJPEG>=1.7.0
+
+# Phase 1 — native Agora subscriber (requires AGORA_NATIVE=1 env var to activate)
+agora-python-server-sdk>=2.4.0
+av>=12.0.0
+
+# Optional GPU acceleration — uncomment and pick the variant matching your CUDA version:
+# CUDA 12.x → cupy-cuda12x
+# CUDA 11.x → cupy-cuda11x
+# cupy-cuda12x
