@@ -31,28 +31,10 @@
   <!-- ── Left sidebar: config panels ── -->
   <aside>
 
-    <!-- AI Model provider selector -->
+      <!-- Auth -->
     <div class="card accordion open">
       <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
-        <div style="display:flex;align-items:center;gap:8px;"><span class="step">1</span> AI Model</div>
-        <span class="accordion-arrow">▾</span>
-      </div>
-      <div class="accordion-body" style="overflow:visible;">
-        <div class="provider-dropdown" id="providerDropdown">
-          <button class="provider-trigger" id="providerTrigger" onclick="toggleProviderDropdown()">
-            <span id="providerSelected">Loading…</span>
-            <span class="provider-chevron">▾</span>
-          </button>
-          <div class="provider-options" id="providerOptions"></div>
-        </div>
-        <p class="hint" id="providerHint">Loading providers…</p>
-      </div>
-    </div>
-
-    <!-- Auth -->
-    <div class="card accordion open">
-      <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
-        <div style="display:flex;align-items:center;gap:8px;"><span class="step">2</span> Authentication</div>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="step">1</span> Authentication</div>
         <span class="accordion-arrow">▾</span>
       </div>
       <div class="accordion-body">
@@ -98,7 +80,7 @@
     <!-- Source image -->
     <div class="card accordion open">
       <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
-        <div style="display:flex;align-items:center;gap:8px;"><span class="step">3</span> Source Face Image</div>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="step">2</span> Source Face Image</div>
         <span class="accordion-arrow">▾</span>
       </div>
       <div class="accordion-body">
@@ -139,7 +121,7 @@
     <!-- Session controls -->
     <div class="card accordion open">
       <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
-        <div style="display:flex;align-items:center;gap:8px;"><span class="step">4</span> Session</div>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="step">3</span> Session</div>
         <span class="accordion-arrow">▾</span>
       </div>
       <div class="accordion-body">
