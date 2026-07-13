@@ -112,6 +112,12 @@
         <span id="authStatus">Not authenticated</span>
       </div>
 
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button class="btn-primary" id="btnStart" onclick="handleStart()" style="flex:1;min-width:140px;">Start Faceswap</button>
+        <button class="btn-secondary" id="btnStop" onclick="handleStop()" disabled style="flex-shrink:0;min-width:90px;">Stop</button>
+      </div>
+      <div id="sessionInfo" style="margin-top:10px;font-size:0.85rem;color:var(--muted);">No active session.</div>
+
       </div>
     </div>
 
@@ -461,13 +467,6 @@
             Preview Camera (BG Test)
           </button>
         
-          <!-- Start / Stop session controls -->
-          <div style="display:flex;gap:10px;margin-top:12px;align-items:center;">
-            <button class="btn-primary" id="btnStart" onclick="handleStart()" style="flex:1;">Start Faceswap</button>
-            <button class="btn-secondary" id="btnStop" onclick="handleStop()" disabled style="flex-shrink:0;">Stop</button>
-          </div>
-
-          <div id="sessionInfo" style="margin-top:10px;font-size:0.85rem;color:var(--muted);">No active session.</div>
         </div>
       </div>
     </div>
