@@ -309,13 +309,13 @@
       </div>
       <div id="sessionPanelBody" style="display:block;padding:0 20px 20px;">
 
-        <div class="session-tabs" style="margin-top:10px;">
-          <div class="session-tab active" data-tab="tab-agora-quality">Agora Input Quality</div>
-          <div class="session-tab" data-tab="tab-face-quality">Face Detection Quality Tester</div>
-          <div class="session-tab" data-tab="tab-bg-removal">Background Removal</div>
+        <div class="tabs" style="margin-top:10px;">
+          <div class="tab active" data-tab="agora-quality">Agora Input Quality</div>
+          <div class="tab" data-tab="face-quality">Face Detection Quality Tester</div>
+          <div class="tab" data-tab="bg-removal">Background Removal</div>
         </div>
 
-        <div class="session-tab-pane active" id="tab-agora-quality">
+        <div class="tab-pane active" id="tab-agora-quality">
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);margin:12px 0 4px;text-transform:uppercase;letter-spacing:0.05em;">Agora Input Frame Features</div>
           <div style="font-size:0.7rem;color:var(--text-muted,#888);margin-bottom:10px;">Controls the resolution, frame rate, and bitrate of the raw video frame sent into the Agora stream.</div>
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);margin-bottom:6px;">Frame Input Quality</div>
@@ -371,7 +371,7 @@
           </div>
         </div>
 
-        <div class="session-tab-pane" id="tab-face-quality">
+        <div class="tab-pane" id="tab-face-quality">
           <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
               <span style="font-size:0.78rem;color:var(--muted);">Face Lock (AI detect)</span>
@@ -392,7 +392,7 @@
           </div>
         </div>
 
-        <div class="session-tab-pane" id="tab-bg-removal">
+        <div class="tab-pane" id="tab-bg-removal">
           <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
             <button class="bg-mode-btn active" data-mode="optionB" onclick="setBgOutputMode('optionB')"
               style="flex:1;min-width:150px;padding:6px 0;font-size:0.72rem;border:1px solid var(--accent);border-radius:4px;background:var(--accent-bg);color:var(--accent);cursor:pointer;">
