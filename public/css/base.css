@@ -64,14 +64,33 @@ header span { font-size: 0.8rem; color: var(--muted); }
 
 /* Layout */
 .layout {
-  display: grid;
-  grid-template-columns: 320px 1fr;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.controls-row {
+  display: flex;
   gap: 20px;
   align-items: start;
 }
 
+.controls-row > aside {
+  flex: 0 0 320px;
+  min-width: 0;
+}
+
+.controls-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 @media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; }
+  .controls-row { flex-direction: column; }
+  .controls-row > aside { flex: none; width: 100%; }
 }
 
 /* Cards */
