@@ -141,6 +141,7 @@ async function handleStop() {
     stopObsStream();
     bgStopOptionA();
     bgReset();
+    setBgPreset('none');
     const metricsSummary = stopMetrics();
 
     if (localVideoTrack) { localVideoTrack.stop(); localVideoTrack.close(); localVideoTrack = null; }
