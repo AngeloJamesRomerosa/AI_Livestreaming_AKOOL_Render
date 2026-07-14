@@ -226,6 +226,25 @@ window.addEventListener('beforeunload', () => {
   }
 });
 
+/* ─── Streaming Connections tab switcher ─────────────────────── */
+function switchVcamMethod(method) {
+  const methodId = 'method-' + method;
+
+  // Update tab active state
+  document.querySelectorAll('#vcamMethodTabs .tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.tab === methodId);
+  });
+
+  // Show the selected method pane, hide others
+  document.querySelectorAll('.vcam-method').forEach(pane => {
+    pane.style.display = pane.id === methodId ? '' : 'none';
+  });
+
+  // Ensure the accordion is open
+  const body = document.getElementById('obsPanelBody');
+  if (body) body.style.display = 'block';
+}
+
 /* ─── Init ───────────────────────────────────────────────────── */
 log('AKOOL Livestream Faceswap loaded. Follow steps 1 → 2 → 3.', 'info');
 checkAuthStatus();
