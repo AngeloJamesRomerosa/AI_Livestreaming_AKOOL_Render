@@ -34,9 +34,11 @@
   <img id="stream" alt="AI Output" />
 
   <script>
-    const params     = new URLSearchParams(window.location.search);
-    const key        = params.get('key') || '';
-    const streamBase = '/stream.mjpeg' + (key ? '?key=' + key : '');
+    const params = new URLSearchParams(window.location.search);
+    const key    = params.get('key') || '';
+    const sid    = params.get('sid') || '';
+    const qs     = key ? '?key=' + key : (sid ? '?sid=' + sid : '');
+    const streamBase = '/stream.mjpeg' + qs;
 
     const img     = document.getElementById('stream');
     const waiting = document.getElementById('waiting');
@@ -49,7 +51,7 @@
     img.addEventListener('error', () => {
       waiting.classList.remove('hidden');
       setTimeout(() => {
-        img.src = streamBase + (key ? '&t=' : '?t=') + Date.now();
+        img.src = streamBase + (qs ? '&t=' : '?t=') + Date.now();
       }, 2000);
     });
   </script>

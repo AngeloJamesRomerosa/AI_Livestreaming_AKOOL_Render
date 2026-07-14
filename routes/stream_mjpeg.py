@@ -15,11 +15,13 @@ router = APIRouter()
 
 
 @router.get("/stream.mjpeg")
-async def mjpeg_stream(key: str = Query(default="")):
+async def mjpeg_stream(key: str = Query(default=""), sid: str = Query(default="")):
     """MJPEG stream — OBS Media Source or pop-out window connects here.
-    Requires ?key= matching the session stream secret (generated server-side).
+    Accepts ?key=SECRET (session-authenticated) or ?sid=SID (direct, for preview mode).
     """
-    session_id = await state.get_session_id_by_secret(key)
+    session_id = await state.get_session_id_by_secret(key) if key else None
+    if not session_id:
+        session_id = sid or None  # fallback: direct sid access (preview / test mode)
     if not session_id:
         return JSONResponse({"error": "Unauthorized"}, status_code=403)
 
