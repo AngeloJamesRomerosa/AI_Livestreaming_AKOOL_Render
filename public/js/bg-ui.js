@@ -1,15 +1,16 @@
 /* ─── Background UI — presets, Option A/B ───────────────────────── */
 
 const BG_PRESETS = [
-  { id: 'none',       label: 'None'                                              },
-  { id: 'blur',       label: 'Blur',       type: 'blur'                         },
-  { id: 'black',      label: 'Black',      type: 'color',  value: '#000000'     },
-  { id: 'classroom',  label: 'Classroom',  type: 'preset', src: '/img/bg/classroom.jpeg' },
-  { id: 'gym',        label: 'Gym',        type: 'preset', src: '/img/bg/gym.png'        },
-  { id: 'white_room', label: 'White Room', type: 'preset', src: '/img/bg/white_room.png' },
-  { id: 'pink_wall',  label: 'Pink Wall',  type: 'preset', src: '/img/bg/pink_wall.jpg'  },
-  { id: 'beach',      label: 'Beach',      type: 'preset', src: '/img/bg/beach.jpg'      },
-  { id: 'image',      label: '+ Image',    type: 'image'                        },
+  { id: 'none',        label: 'None'                                                   },
+  { id: 'blur',        label: 'Blur',        type: 'blur'                              },
+  { id: 'black',       label: 'Black',       type: 'color',  value: '#000000'          },
+  { id: 'classroom',   label: 'Classroom',   type: 'preset', src: '/img/bg/classroom.jpeg' },
+  { id: 'gym',         label: 'Gym',         type: 'preset', src: '/img/bg/gym.jpg'        },
+  { id: 'white_room',  label: 'White Room',  type: 'preset', src: '/img/bg/white_room.png' },
+  { id: 'bed',         label: 'Bed',         type: 'preset', src: '/img/bg/bed.jpg'         },
+  { id: 'jungle',      label: 'Jungle',      type: 'preset', src: '/img/bg/jungle.jpg'      },
+  { id: 'livingroom',  label: 'Living Room', type: 'preset', src: '/img/bg/livingroom.jpg'  },
+  { id: 'image',       label: '+ Image',     type: 'image'                               },
 ];
 
 // Cache for preset images so they load once and are ready on the next frame
