@@ -86,13 +86,19 @@
 
     <aside>
       <!-- Session controls card -->
-      <div class="card" style="margin-bottom:10px;">
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-          <button class="btn-primary" id="btnStart" onclick="handleStart()" style="flex:1;min-width:140px;">Start Faceswap</button>
-          <button class="btn-secondary" id="btnStop" onclick="handleStop()" disabled style="flex-shrink:0;min-width:90px;">Stop</button>
+      <div class="card accordion open" style="margin-bottom:10px;">
+        <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
+          <div>Go Stream</div>
+          <span class="accordion-arrow">▾</span>
         </div>
-        <div id="sessionInfo" style="margin-top:10px;font-size:0.85rem;color:var(--muted);">No active session.</div>
-        <div id="cameraConflictNotice" style="display:none;margin-top:10px;padding:10px;border:1px solid var(--warn);border-radius:6px;font-size:0.78rem;line-height:1.6;"></div>
+        <div class="accordion-body">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <button class="btn-primary" id="btnStart" onclick="handleStart()" style="width:100%;">Start Faceswap</button>
+            <button class="btn-secondary" id="btnStop" onclick="handleStop()" disabled style="width:100%;">Stop</button>
+          </div>
+          <div id="sessionInfo" style="margin-top:10px;font-size:0.85rem;color:var(--muted);">No active session.</div>
+          <div id="cameraConflictNotice" style="display:none;margin-top:10px;padding:10px;border:1px solid var(--warn);border-radius:6px;font-size:0.78rem;line-height:1.6;"></div>
+        </div>
       </div>
       <!-- AI Models + Services status card -->
       <div class="card accordion open" style="margin-bottom:10px;">
