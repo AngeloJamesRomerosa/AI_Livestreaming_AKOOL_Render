@@ -18,11 +18,20 @@ window._getViewerStream = function() {
   return video.captureStream?.() ?? video.mozCaptureStream?.() ?? null;
 };
 
+function _updateObsUrl() {
+  const input = document.getElementById('obsViewerUrl');
+  if (!input) return;
+  if (session?.stream_path) {
+    input.value = `${window.location.protocol}//${window.location.host}${session.stream_path}`;
+  } else if (typeof _camPreviewStream !== 'undefined' && _camPreviewStream) {
+    input.value = `${window.location.protocol}//${window.location.host}/stream.mjpeg?sid=__preview__`;
+  }
+}
+
 function showObsPanel() {
   if (!session?.app_id) return;
 
-  const viewerUrl = `${window.location.protocol}//${window.location.host}${session.stream_path}`;
-  document.getElementById('obsViewerUrl').value = viewerUrl;
+  _updateObsUrl();
 
   // If preview was streaming with __preview__ sid, reconnect with the real session sid.
   if (_obsWs) { stopObsStream(); }
@@ -96,6 +105,7 @@ function _startObsStream() {
     _obsSending = false;
     _obsWorker  = _createObsWorker();
     _startKeepAlive();
+    _updateObsUrl();
   };
 
   _obsWs.onclose = () => {
@@ -212,10 +222,13 @@ function copyObsUrl() {
 }
 
 function popOutViewer() {
-  const key = session?.stream_path
-    ? new URLSearchParams(session.stream_path.split('?')[1] || '').get('key') || ''
-    : '';
-  const query = key ? '?key=' + key : '';
+  let query = '';
+  if (session?.stream_path) {
+    const key = new URLSearchParams(session.stream_path.split('?')[1] || '').get('key') || '';
+    if (key) query = '?key=' + key;
+  } else if (typeof _camPreviewStream !== 'undefined' && _camPreviewStream) {
+    query = '?sid=__preview__';
+  }
   const url = `${window.location.protocol}//${window.location.host}/viewer.html${query}`;
   window.open(url, 'akool-obs-output', 'popup,width=1280,height=720');
 }

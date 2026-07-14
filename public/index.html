@@ -443,21 +443,23 @@
             </button>
           </div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;">
-            <div class="bg-opt active" data-bg="none"       onclick="setBgPreset('none')">None</div>
-            <div class="bg-opt"        data-bg="blur"       onclick="setBgPreset('blur')">Blur</div>
-            <div class="bg-opt"        data-bg="black"      onclick="setBgPreset('black')"
+            <div class="bg-opt active" data-bg="none"        onclick="setBgPreset('none')">None</div>
+            <div class="bg-opt"        data-bg="blur"        onclick="setBgPreset('blur')">Blur</div>
+            <div class="bg-opt"        data-bg="black"       onclick="setBgPreset('black')"
               style="background:#000;color:#fff;border-color:#000;">Black</div>
-            <div class="bg-opt"        data-bg="classroom"  onclick="setBgPreset('classroom')"
+            <div class="bg-opt"        data-bg="classroom"   onclick="setBgPreset('classroom')"
               style="background-image:url('/img/bg/classroom.jpeg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Classroom</div>
-            <div class="bg-opt"        data-bg="gym"        onclick="setBgPreset('gym')"
-              style="background-image:url('/img/bg/gym.png');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Gym</div>
-            <div class="bg-opt"        data-bg="white_room" onclick="setBgPreset('white_room')"
+            <div class="bg-opt"        data-bg="gym"         onclick="setBgPreset('gym')"
+              style="background-image:url('/img/bg/gym.jpg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Gym</div>
+            <div class="bg-opt"        data-bg="white_room"  onclick="setBgPreset('white_room')"
               style="background-image:url('/img/bg/white_room.png');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">White Room</div>
-            <div class="bg-opt"        data-bg="pink_wall"  onclick="setBgPreset('pink_wall')"
-              style="background-image:url('/img/bg/pink_wall.jpg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Pink Wall</div>
-            <div class="bg-opt"        data-bg="beach"      onclick="setBgPreset('beach')"
-              style="background-image:url('/img/bg/beach.jpg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Beach</div>
-            <div class="bg-opt"        data-bg="image"      onclick="handleBgImageClick()"
+            <div class="bg-opt"        data-bg="bed"         onclick="setBgPreset('bed')"
+              style="background-image:url('/img/bg/bed.jpg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Bed</div>
+            <div class="bg-opt"        data-bg="jungle"      onclick="setBgPreset('jungle')"
+              style="background-image:url('/img/bg/jungle.jpg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Jungle</div>
+            <div class="bg-opt"        data-bg="livingroom"  onclick="setBgPreset('livingroom')"
+              style="background-image:url('/img/bg/livingroom.jpg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Living Room</div>
+            <div class="bg-opt"        data-bg="image"       onclick="handleBgImageClick()"
               style="border-style:dashed;">+ Image</div>
           </div>
           <input type="file" id="bgImageInput" accept="image/*"
@@ -617,10 +619,10 @@
 <script src="js/face-metrics-poller.js?v=2"></script>
 <script src="js/metrics-collect.js?v=2"></script>
 <script src="js/faceai.js?v=2"></script>
-<script src="js/obs.js?v=6"></script>
+<script src="js/obs.js?v=7"></script>
 <script src="js/rtmp-audio.js?v=2"></script>
-<script src="js/rtmp-camera-fallback.js?v=2"></script>
-<script src="js/rtmp.js?v=2"></script>
+<script src="js/rtmp-camera-fallback.js?v=3"></script>
+<script src="js/rtmp.js?v=3"></script>
 <script>
   // Apply mobile-specific behaviors after all modules are loaded
   if (isMobileLayout()) switchVcamMethod('golive');

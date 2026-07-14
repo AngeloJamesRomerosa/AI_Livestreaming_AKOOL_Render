@@ -14,6 +14,7 @@ let _rtmpActive    = false;
 let _startAborted  = false;
 let _statusPoller  = null;
 let _lastLoggedErr = '';
+let _wakeLock      = null;
 
 /* ── Public API ────────────────────────────────────────────────────────────── */
 
@@ -185,6 +186,10 @@ async function _startWakeLock() {
   } catch (e) {
     log('Wake Lock unavailable — screen may dim during stream', 'warn');
   }
+}
+
+function _releaseWakeLock() {
+  if (_wakeLock) { try { _wakeLock.release(); } catch (_) {} _wakeLock = null; }
 }
 
 /* ── Cleanup on tab/browser close ──────────────────────────────────────────── */
