@@ -87,6 +87,8 @@ function _stopCameraPreview() {
     _camPreviewStream = null;
   }
   _camPreviewVideoEl = null;
+  setBgPreset('none');
+  if (typeof bgReset === 'function') bgReset();
   document.getElementById('bgPreviewPanel').style.display = 'none';
   const btn = document.getElementById('btnCameraPreview');
   if (btn) { btn.textContent = 'Preview Camera (BG Test)'; btn.disabled = false; }
