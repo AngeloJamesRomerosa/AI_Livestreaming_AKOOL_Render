@@ -32,6 +32,26 @@ The browser handles all heavy lifting: Agora camera publish, faceswap receive, M
 - [Render Deployment Guide](docs/RENDER_DEPLOYMENT.txt) — first-time deploy and updating the live service
 - [API Docs](docs/API_DOCS.txt) — all endpoints, Swagger UI at `/docs`, ReDoc at `/redoc`
 
+### Project structure
+
+The UI is served as a Jinja2 template split into focused partials:
+
+```
+templates/
+  index.html                  — shell with {% include %} directives
+  partials/
+    header.html               — site header + layout controls
+    video-grid.html           — camera / faceswap panels + BG preview
+    sidebar.html              — Go Stream, Indicators, Auth, Credit, Source Face
+    metrics.html              — Performance Metrics card
+    session-controls.html     — Agora quality, Face AI, Background Removal tabs
+    streaming-connections.html — Media Source / Pop Out / Go Live (RTMP)
+    activity-log.html         — Activity Log card
+    scripts.html              — all <script> tags
+```
+
+Static assets (CSS, JS, images) are still served from `public/`.
+
 ---
 
 ## Usage
@@ -67,8 +87,9 @@ Select a preset before or during a session. Background removal runs entirely in 
 | Classroom | Virtual classroom background |
 | Gym | Virtual gym background |
 | White Room | Virtual white room background |
-| Pink Wall | Virtual pink wall background |
-| Beach | Virtual beach background |
+| Bed | Bedroom background |
+| Jungle | Jungle background |
+| Living Room | Living room background |
 | + Image | Upload your own background |
 
 **Two modes:**
