@@ -17,7 +17,6 @@
 
 <header>
   <h1>AKOOL Livestream Faceswap</h1>
-  <span class="badge">Demo</span>
   <div id="layoutSwitch">
     <span id="layoutAutoIndicator">Auto</span>
     <button id="themeToggle"      class="layout-btn" onclick="toggleTheme()"        title="Toggle light/dark mode">☀</button>
@@ -32,7 +31,7 @@
   <div class="video-grid">
       <!-- Local camera -->
       <div class="video-panel">
-        <div class="video-label">Your Camera</div>
+        <div class="video-label" style="background:var(--accent);color:#fff;">Your Camera</div>
         <button class="flip-cam-btn" onclick="flipCamera()" title="Switch camera">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
@@ -157,7 +156,7 @@
       <!-- Auth -->
       <div class="card accordion open">
         <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
-          <div style="display:flex;align-items:center;gap:8px;"><span class="step">1</span> Authentication</div>
+          <div style="display:flex;align-items:center;gap:8px;"><span style="background:var(--accent);color:#fff;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.05em;">Auth</span> Authentication</div>
           <span class="accordion-arrow">▾</span>
         </div>
         <div class="accordion-body">
@@ -196,7 +195,7 @@
       <!-- Source image -->
       <div class="card accordion open">
         <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
-          <div style="display:flex;align-items:center;gap:8px;"><span class="step">2</span> Source Face Image</div>
+          <div style="display:flex;align-items:center;gap:8px;"><span style="background:var(--accent);color:#fff;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.05em;">Source</span> Source Face Image</div>
           <span class="accordion-arrow">▾</span>
         </div>
         <div class="accordion-body">
