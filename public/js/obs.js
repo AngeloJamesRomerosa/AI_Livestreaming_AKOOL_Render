@@ -21,10 +21,11 @@ window._getViewerStream = function() {
 function showObsPanel() {
   if (!session?.app_id) return;
 
-  // stream_path includes the secret key generated server-side e.g. /stream.mjpeg?key=abc123
   const viewerUrl = `${window.location.protocol}//${window.location.host}${session.stream_path}`;
   document.getElementById('obsViewerUrl').value = viewerUrl;
 
+  // If preview was streaming with __preview__ sid, reconnect with the real session sid.
+  if (_obsWs) { stopObsStream(); }
   _startObsStream();
   document.getElementById('bgPreviewPanel').style.display = 'block';
   log('OBS viewer URL ready — see OBS Output panel', 'success');
@@ -56,25 +57,30 @@ function _stopObsWorker() {
   if (_obsWorker) { _obsWorker.terminate(); _obsWorker = null; }
 }
 
+// Returns the best available video source: faceswap output first, then BG preview camera.
+function _getStreamVideoSource() {
+  const remote = document.querySelector('#remote-video video');
+  if (remote && remote.readyState >= 2) return remote;
+  if (typeof _camPreviewVideoEl !== 'undefined' && _camPreviewVideoEl &&
+      _camPreviewVideoEl.readyState >= 2) return _camPreviewVideoEl;
+  return null;
+}
+
 function _startObsStream() {
   if (_obsWs) return;
 
-  // Only one output method active at a time
   if (_vcamWs) {
     stopVirtualCamera();
     log('Built-in Camera stopped — switching to OBS relay', 'info');
   }
 
-  // showObsPanel() is called before the AI video element lands in the DOM.
-  // Retry until the element exists and has at least one decoded frame.
-  const video = document.querySelector('#remote-video video');
-  if (!video || video.readyState < 2) {
-    setTimeout(_startObsStream, 300);
-    return;
-  }
+  const hasPreview = typeof _camPreviewStream !== 'undefined' && !!_camPreviewStream;
+  const sid = session?._id || (hasPreview ? '__preview__' : '');
+  if (!sid) return;
 
-  const width  = video.videoWidth  || 640;
-  const height = video.videoHeight || 480;
+  const src    = _getStreamVideoSource();
+  const width  = src?.videoWidth  || 640;
+  const height = src?.videoHeight || 480;
 
   _obsCanvas        = document.createElement('canvas');
   _obsCanvas.width  = width;
@@ -82,7 +88,6 @@ function _startObsStream() {
   _obsCtx = _obsCanvas.getContext('2d');
 
   const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
-  const sid   = session?._id || '';
   _obsWs = new WebSocket(`${proto}://${window.location.host}/ws/stream-out?sid=${sid}`);
   _obsWs.binaryType = 'arraybuffer';
 
@@ -97,7 +102,8 @@ function _startObsStream() {
     _stopObsWorker();
     _obsWs      = null;
     _obsSending = false;
-    if (session) {
+    const stillHasPreview = typeof _camPreviewStream !== 'undefined' && !!_camPreviewStream;
+    if (session?._id || stillHasPreview) {
       log('OBS relay disconnected — reconnecting…', 'warn');
       setTimeout(_startObsStream, 2000);
     }
@@ -105,8 +111,13 @@ function _startObsStream() {
 
   _obsWs.onerror = () => {
     log('OBS relay WebSocket error', 'error');
-    // onclose always fires after onerror — let it handle cleanup and reconnect
   };
+}
+
+// Start streaming from the preview camera without a faceswap session.
+function startPreviewStream() {
+  if (_obsWs) return;
+  _startObsStream();
 }
 
 async function _sendObsFrame() {
@@ -118,8 +129,8 @@ async function _sendObsFrame() {
   if (_obsSending) return;
   if (!_obsWs || _obsWs.readyState !== WebSocket.OPEN) return;
 
-  const video = document.querySelector('#remote-video video');
-  if (!video || video.readyState < 2) return;
+  const video = _getStreamVideoSource();
+  if (!video) return;
 
   _obsSending   = true;
   _obsSendingAt = Date.now();

@@ -70,6 +70,9 @@ async function _startCameraPreview() {
     btn.textContent = 'Stop Preview (BG Test)';
     btn.disabled    = false;
     log('Camera preview started — select a BG preset to see it applied in real time', 'success');
+
+    // Start the OBS relay so this preview can be streamed via Go Live / RTMP
+    if (typeof startPreviewStream === 'function') startPreviewStream();
   } catch (e) {
     log(`Camera preview failed: ${e.message}`, 'error');
     btn.disabled = false;
@@ -88,6 +91,9 @@ function _stopCameraPreview() {
   const btn = document.getElementById('btnCameraPreview');
   if (btn) { btn.textContent = 'Preview Camera (BG Test)'; btn.disabled = false; }
   log('Camera preview stopped', 'info');
+
+  // Stop the relay only if no faceswap session is running
+  if (!session?._id && typeof stopObsStream === 'function') stopObsStream();
 }
 
 // Called from session.js handleStart / handleStop
@@ -95,9 +101,15 @@ function bgCameraPreviewSyncSession(active) {
   const btn = document.getElementById('btnCameraPreview');
   if (!btn) return;
   if (active) {
+    // Session starting — stop preview (camera can't be shared with Agora)
     if (_camPreviewStream) _stopCameraPreview();
     btn.disabled = true;
   } else {
+    // Session stopped — re-enable preview button
     btn.disabled = false;
+    // If preview was running before, restart the relay now that session is gone
+    if (_camPreviewStream && typeof startPreviewStream === 'function') {
+      startPreviewStream();
+    }
   }
 }
