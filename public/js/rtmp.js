@@ -41,16 +41,21 @@ async function startRtmp() {
     return;
   }
 
-  // If no faceswap session is active, start the local camera fallback so
-  // frames still flow to ffmpeg — useful for testing without AKOOL credits.
-  const hasSession = typeof session !== 'undefined' && session && session._id;
+  // If no faceswap session is active, check if the OBS relay is already sending
+  // frames (preview camera mode). If so, use those frames — they already have
+  // BG applied. Only fall back to raw camera if the relay is not connected.
+  const hasSession  = typeof session !== 'undefined' && session && session._id;
+  const obsRelayUp  = typeof _obsWs !== 'undefined' && _obsWs && _obsWs.readyState === WebSocket.OPEN;
   if (!hasSession) {
-    log('Go Live: no active session — using local camera (test mode)', 'info');
-    try {
-      await _startCameraFallback();
-    } catch (err) {
-      log(`Go Live: camera fallback failed — ${err.message}`, 'warn');
-      // Non-fatal: stream may still work if OBS relay starts later
+    if (obsRelayUp) {
+      log('Go Live: using OBS relay (preview mode) — BG will be applied', 'info');
+    } else {
+      log('Go Live: no active session — using local camera (test mode)', 'info');
+      try {
+        await _startCameraFallback();
+      } catch (err) {
+        log(`Go Live: camera fallback failed — ${err.message}`, 'warn');
+      }
     }
   } else {
     log('Go Live: using faceswap output — server-side relay active', 'info');
