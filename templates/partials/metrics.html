@@ -1,0 +1,65 @@
+    <!-- Performance Metrics panel — shown after remote stream connects -->
+    <div class="card metrics-panel" id="metricsPanel" style="display:none;">
+
+      <div class="metrics-header">
+        <div class="card-title" style="margin:0;">Performance Metrics</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="status-row" style="margin:0;">
+            <div class="dot" id="overallDot"></div>
+            <span id="overallLabel" style="font-size:0.75rem;">Measuring…</span>
+          </div>
+          <div class="session-timer" id="sessionTimer">00:00</div>
+        </div>
+      </div>
+
+      <!-- Metrics grid: label | current | average | target -->
+      <div class="metrics-grid">
+        <div class="mg-head"></div>
+        <div class="mg-head">Current</div>
+        <div class="mg-head">Average</div>
+        <div class="mg-head">Target</div>
+
+        <!-- FPS row -->
+        <div class="mg-label">FPS</div>
+        <div class="mg-val" id="mFps">—</div>
+        <div class="mg-val" id="mAvgFps">—</div>
+        <div class="mg-target">25 – 30</div>
+
+        <!-- Latency row -->
+        <div class="mg-label">Latency</div>
+        <div class="mg-val" id="mLatency">—</div>
+        <div class="mg-val" id="mAvgLatency">—</div>
+        <div class="mg-target">&lt; 400 ms</div>
+
+        <!-- Face-lock row -->
+        <div class="mg-label">Face Lock</div>
+        <div class="mg-val" id="mFaceLock">—</div>
+        <div class="mg-val" id="mAvgFaceLock">—</div>
+        <div class="mg-target">&gt; 75 %</div>
+
+        <!-- Face Match row — shown when Face Match toggle is on -->
+        <div class="mg-label" id="mFaceMatchRow0" style="display:none;">Face Match</div>
+        <div class="mg-val"   id="mFaceMatch"     style="display:none;">—</div>
+        <div class="mg-val"   id="mFaceMatchAvg"  style="display:none;">—</div>
+        <div class="mg-target" id="mFaceMatchRow3" style="display:none;">&gt; 60 %</div>
+
+        <!-- Vcam FPS row — Method B only -->
+      </div>
+
+      <!-- Face-lock progress bar -->
+      <div style="margin-top:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-bottom:4px;">
+          <span>Face-lock rate</span><span id="faceLockPct">—</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" id="faceLockBar"></div></div>
+      </div>
+
+      <!-- Validation summary -->
+      <div class="validation-row" id="validationRow" style="display:none;">
+        <div class="val-item" id="valFps">FPS</div>
+        <div class="val-item" id="valLatency">Latency</div>
+        <div class="val-item" id="valFaceLock">Face Lock</div>
+        <div class="val-item" id="valFaceMatch" style="display:none;">Face Match</div>
+      </div>
+
+    </div>

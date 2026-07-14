@@ -1,0 +1,16 @@
+    <!-- Log -->
+    <div class="card" id="logPanel" style="padding:0;overflow:hidden;">
+      <div class="accordion-header" onclick="toggleAccordion('logPanel')"
+           style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <span style="background:var(--accent);color:#fff;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.05em;">Activity Log</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="btn-secondary" onclick="clearLog();event.stopPropagation()" style="padding:4px 10px;font-size:0.72rem;">Clear</button>
+          <svg class="accordion-chevron open" id="logPanelChevron" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </div>
+      </div>
+      <div id="logPanelBody">
+        <div class="log-panel" id="log"></div>
+      </div>
+    </div>

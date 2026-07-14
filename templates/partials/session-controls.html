@@ -1,0 +1,176 @@
+    <!-- Session control panel — same right-side card style as Virtual Camera Output -->
+    <div class="card obs-panel session-panel" id="sessionPanel" style="padding:0;overflow:hidden;">
+      <div class="accordion-header" onclick="toggleAccordion('sessionPanel')"
+           style="padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
+        <div class="card-title" style="margin:0;">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="flex-shrink:0">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33h0A1.65 1.65 0 009 3.09V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+          </svg>
+          <span style="background:var(--accent);color:#fff;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.05em;">Session Controls</span>
+        </div>
+        <svg class="accordion-chevron open" id="sessionPanelChevron" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+      <div id="sessionPanelBody" style="display:block;padding:0 20px 20px;">
+
+        <div class="tabs" style="margin-top:10px;">
+          <div class="tab active" data-tab="agora-quality">Agora Input Quality</div>
+          <div class="tab" data-tab="face-quality">Face Detection Quality Tester</div>
+          <div class="tab" data-tab="bg-removal">Background Removal</div>
+        </div>
+
+        <div class="tab-pane active" id="tab-agora-quality">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);margin:12px 0 4px;text-transform:uppercase;letter-spacing:0.05em;">Agora Input Frame Features</div>
+          <div style="font-size:0.7rem;color:var(--text-muted,#888);margin-bottom:10px;">Controls the resolution, frame rate, and bitrate of the raw video frame sent into the Agora stream.</div>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);margin-bottom:6px;">Frame Input Quality</div>
+          <div class="yt-quality-list" id="qualitySelector">
+            <div class="yt-quality-item active" data-preset="auto">
+              <span class="yt-check">✓</span>
+              <span class="yt-res">Auto</span>
+              <span class="yt-info">640×360</span>
+            </div>
+            <div class="yt-quality-item" data-preset="1080p">
+              <span class="yt-check"></span>
+              <span class="yt-res">1080p</span>
+              <span class="yt-badge">HD</span>
+              <span class="yt-info">1920×1080</span>
+            </div>
+            <div class="yt-quality-item" data-preset="720p">
+              <span class="yt-check"></span>
+              <span class="yt-res">720p</span>
+              <span class="yt-badge">HD</span>
+              <span class="yt-info">1280×720</span>
+            </div>
+            <div class="yt-quality-item" data-preset="480p">
+              <span class="yt-check"></span>
+              <span class="yt-res">480p</span>
+              <span class="yt-info">848×480</span>
+            </div>
+            <div class="yt-quality-item" data-preset="360p">
+              <span class="yt-check"></span>
+              <span class="yt-res">360p</span>
+              <span class="yt-info">640×360</span>
+            </div>
+            <div class="yt-quality-item" data-preset="240p">
+              <span class="yt-check"></span>
+              <span class="yt-res">240p</span>
+              <span class="yt-info">424×240</span>
+            </div>
+            <div class="yt-quality-item" data-preset="144p">
+              <span class="yt-check"></span>
+              <span class="yt-res">144p</span>
+              <span class="yt-info">256×144</span>
+            </div>
+          </div>
+
+          <div class="qc-controls" style="margin-top:14px;">
+            <div class="qc-row">
+              <span class="qc-label">Frame Rate</span>
+              <div class="qc-btns" id="fpsSelector"></div>
+            </div>
+            <div class="qc-row qc-row-bitrate">
+              <span class="qc-label">Bitrate</span>
+              <div class="qc-btns" id="bitrateSelector"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="tab-face-quality">
+          <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:0.78rem;color:var(--muted);">Face Lock (AI detect)</span>
+              <label class="toggle-wrap" title="TinyFaceDetector: scores face presence in output (loads ~820 KB)">
+                <input type="checkbox" id="faceLockToggle" onchange="toggleFaceLock(this.checked)" />
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                <span class="toggle-label" id="faceLockLabel">AI Lock</span>
+              </label>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:0.78rem;color:var(--muted);">Face Match (similarity)</span>
+              <label class="toggle-wrap" title="Compare output face against source image (loads ~700 KB additional)">
+                <input type="checkbox" id="faceMatchToggle" onchange="toggleFaceMatch(this.checked)" />
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                <span class="toggle-label" id="faceMatchLabel">AI Match</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="tab-bg-removal">
+          <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="bg-mode-btn active" data-mode="optionB" onclick="setBgOutputMode('optionB')"
+              style="flex:1;min-width:150px;padding:6px 0;font-size:0.72rem;border:1px solid var(--accent);border-radius:4px;background:var(--accent-bg);color:var(--accent);cursor:pointer;">
+              Background Change: Output
+            </button>
+            <button class="bg-mode-btn" data-mode="optionA" onclick="setBgOutputMode('optionA')"
+              style="flex:1;min-width:150px;padding:6px 0;font-size:0.72rem;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--muted);cursor:pointer;">
+              Background Change: Input
+            </button>
+          </div>
+          <div id="bgModeNote" style="display:none;font-size:0.71rem;color:var(--muted);margin:10px 0 6px;">
+            Input mode — blur is applied to your camera before AKOOL processes it. Start or restart a session to apply.
+          </div>
+          <div id="bgModeNoteB" style="display:block;font-size:0.71rem;color:var(--muted);margin:10px 0 6px;">
+            Output mode — blur appears in the OBS Browser Source, not the panels above.
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+            <button id="bgToggleSeg" onclick="bgToggleSeg()"
+              style="padding:6px 10px;font-size:0.72rem;font-weight:600;border-radius:4px;border:1px solid var(--accent);background:var(--accent-bg);color:var(--accent);cursor:default;opacity:0.85;"
+              title="Segmenter is always active when a background is selected">
+              Segmenter: ON
+            </button>
+            <button id="bgTogglePose" onclick="bgToggle('pose')"
+              style="padding:6px 10px;font-size:0.72rem;font-weight:600;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;">
+              Pose: OFF
+            </button>
+            <button id="bgToggleHand" onclick="bgToggle('hand')"
+              style="padding:6px 10px;font-size:0.72rem;font-weight:600;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;">
+              Hands: OFF
+            </button>
+            <button id="bgToggleFace" onclick="bgToggle('face')"
+              style="padding:6px 10px;font-size:0.72rem;font-weight:600;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;">
+              Face: OFF
+            </button>
+            <button id="bgToggleOutline" onclick="bgToggle('outline')"
+              style="padding:6px 10px;font-size:0.72rem;font-weight:600;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;">
+              Outline: OFF
+            </button>
+            <button id="bgToggleGpu" onclick="bgToggleGpu()"
+              style="padding:6px 10px;font-size:0.72rem;font-weight:600;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;">
+              GPU: checking…
+            </button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;">
+            <div class="bg-opt active" data-bg="none"        onclick="setBgPreset('none')">None</div>
+            <div class="bg-opt"        data-bg="blur"        onclick="setBgPreset('blur')">Blur</div>
+            <div class="bg-opt"        data-bg="black"       onclick="setBgPreset('black')"
+              style="background:#000;color:#fff;border-color:#000;">Black</div>
+            <div class="bg-opt"        data-bg="classroom"   onclick="setBgPreset('classroom')"
+              style="background-image:url('/img/bg/classroom.jpeg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Classroom</div>
+            <div class="bg-opt"        data-bg="gym"         onclick="setBgPreset('gym')"
+              style="background-image:url('/img/bg/gym.jpg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Gym</div>
+            <div class="bg-opt"        data-bg="white_room"  onclick="setBgPreset('white_room')"
+              style="background-image:url('/img/bg/white_room.png');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">White Room</div>
+            <div class="bg-opt"        data-bg="bed"         onclick="setBgPreset('bed')"
+              style="background-image:url('/img/bg/bed.jpg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Bed</div>
+            <div class="bg-opt"        data-bg="jungle"      onclick="setBgPreset('jungle')"
+              style="background-image:url('/img/bg/jungle.jpg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Jungle</div>
+            <div class="bg-opt"        data-bg="livingroom"  onclick="setBgPreset('livingroom')"
+              style="background-image:url('/img/bg/livingroom.jpg');background-size:cover;background-position:center;color:#fff;text-shadow:0 0 4px #000,0 1px 3px rgba(0,0,0,0.9);border-color:transparent;">Living Room</div>
+            <div class="bg-opt"        data-bg="image"       onclick="handleBgImageClick()"
+              style="border-style:dashed;">+ Image</div>
+          </div>
+          <input type="file" id="bgImageInput" accept="image/*"
+            style="display:none;" onchange="handleBgImageUpload(event)" />
+          <button class="btn-secondary" id="btnCameraPreview" onclick="toggleCameraPreview()"
+            style="width:100%;margin-bottom:6px;">
+            Preview Camera (BG Test)
+          </button>
+
+        </div>
+      </div>
+    </div>

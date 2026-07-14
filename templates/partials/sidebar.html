@@ -1,0 +1,144 @@
+    <aside>
+      <!-- Session controls card -->
+      <div class="card accordion open" style="margin-bottom:10px;">
+        <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="background:var(--accent);color:#fff;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.05em;">Go Stream</span>
+          <span class="accordion-arrow">▾</span>
+        </div>
+        <div class="accordion-body">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <button class="btn-primary" id="btnStart" onclick="handleStart()" style="width:100%;">Start Faceswap</button>
+            <button class="btn-secondary" id="btnStop" onclick="handleStop()" disabled style="width:100%;">Stop</button>
+          </div>
+          <div id="sessionInfo" style="margin-top:10px;font-size:0.85rem;color:var(--muted);">No active session.</div>
+          <div id="cameraConflictNotice" style="display:none;margin-top:10px;padding:10px;border:1px solid var(--warn);border-radius:6px;font-size:0.78rem;line-height:1.6;"></div>
+        </div>
+      </div>
+      <!-- AI Models + Services status card -->
+      <div class="card accordion open" style="margin-bottom:10px;">
+        <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="background:var(--accent);color:#fff;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.05em;">Model/Service Indicators</span>
+          <span class="accordion-arrow">▾</span>
+        </div>
+        <div class="accordion-body">
+        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:8px;">AI Models <span style="font-weight:400;text-transform:none;opacity:0.6;">(Optional)</span></div>
+        <div class="model-row" id="msr-faceLock">
+          <span class="msr-dot"></span>
+          <div class="msr-label">
+            <span class="msr-name">Face Lock</span>
+            <span class="msr-sub">TinyFaceDetector</span>
+          </div>
+          <div class="msr-states">
+            <span class="msr-badge msr-ready-badge">Ready</span>
+            <span class="msr-badge msr-active-badge">Active</span>
+          </div>
+        </div>
+        <div class="model-row" id="msr-faceMatch">
+          <span class="msr-dot"></span>
+          <div class="msr-label">
+            <span class="msr-name">Face Match</span>
+            <span class="msr-sub">FaceLandmark68 + FaceRecognition</span>
+          </div>
+          <div class="msr-states">
+            <span class="msr-badge msr-ready-badge">Ready</span>
+            <span class="msr-badge msr-active-badge">Active</span>
+          </div>
+        </div>
+        <div class="model-row" id="msr-background">
+          <span class="msr-dot"></span>
+          <div class="msr-label">
+            <span class="msr-name">Background</span>
+            <span class="msr-sub">MediaPipe SelfieSegmentation</span>
+          </div>
+          <div class="msr-states">
+            <span class="msr-badge msr-ready-badge">Ready</span>
+            <span class="msr-badge msr-active-badge">Active</span>
+          </div>
+        </div>
+        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-top:12px;margin-bottom:8px;">Services</div>
+        <div class="model-row" id="msr-agora">
+          <span class="msr-dot"></span>
+          <span class="msr-name">Agora SDK</span>
+          <span class="msr-status">Checking…</span>
+        </div>
+        <div class="model-row" id="msr-akool">
+          <span class="msr-dot"></span>
+          <span class="msr-name">AKOOL API</span>
+          <span class="msr-status">Not authenticated</span>
+        </div>
+        </div><!-- /accordion-body -->
+      </div>
+      <!-- Auth -->
+      <div class="card accordion open">
+        <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="background:var(--accent);color:#fff;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.05em;">Authentication</span>
+          <span class="accordion-arrow">▾</span>
+        </div>
+        <div class="accordion-body">
+          <div class="tabs">
+            <div class="tab active" data-tab="credentials">Credentials</div>
+            <div class="tab" data-tab="apikey">API Key</div>
+          </div>
+          <div class="tab-pane active" id="tab-credentials">
+            <label>Client ID</label>
+            <input type="text" id="clientId" placeholder="akool_client_id" />
+            <label>Client Secret</label>
+            <input type="password" id="clientSecret" placeholder="••••••••••••" />
+          </div>
+          <div class="tab-pane" id="tab-apikey">
+            <label>API Key</label>
+            <input type="password" id="apiKey" placeholder="••••••••••••" />
+            <p class="hint">Set via server .env or enter here.</p>
+          </div>
+          <button class="btn-primary" id="btnAuth" onclick="handleAuth()">Authenticate</button>
+          <div class="status-row">
+            <div class="dot" id="authDot"></div>
+            <span id="authStatus">Not authenticated</span>
+          </div>
+        </div>
+      </div>
+      <!-- Credit balance -->
+      <div class="card" id="creditCard" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:13px;color:var(--text-muted);">AKOOL Credits</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="creditBalance" style="font-weight:600;">—</span>
+            <button class="btn-primary" style="padding:4px 10px;font-size:12px;" onclick="fetchCredit()">Check</button>
+          </div>
+        </div>
+      </div>
+      <!-- Source image -->
+      <div class="card accordion open">
+        <div class="card-title accordion-header" onclick="toggleAccordion(this)" style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="background:var(--accent);color:#fff;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.05em;">Source Face Image</span>
+          <span class="accordion-arrow">▾</span>
+        </div>
+        <div class="accordion-body">
+          <label>Image URL (publicly accessible)</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="sourceImageUrl" placeholder="https://example.com/face.jpg" />
+            <button class="btn-secondary" onclick="document.getElementById('fileInput').click()"
+              style="flex-shrink:0;white-space:nowrap;" title="Upload PNG / JPG from your computer">
+              Upload
+            </button>
+          </div>
+          <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+            style="display:none;" onchange="handleFileUpload(event)" />
+          <div id="uploadWarning" class="upload-warning" style="display:none;">
+            <strong>Uploaded image won't reach AKOOL on localhost.</strong>
+            To fix, expose your server with ngrok:<br>
+            1. <code>ngrok http 8000</code><br>
+            2. Copy the <code>https://….ngrok-free.app</code> URL<br>
+            3. Add <code>PUBLIC_BASE_URL=https://….ngrok-free.app</code> to your <code>.env</code><br>
+            4. Restart the server and re-upload the image
+          </div>
+          <p class="hint">PNG, JPG or JPEG · Clear, front-facing photo works best.</p>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+            <button class="btn-secondary" onclick="handleDetectFaces()">Detect Faces</button>
+            <img class="face-preview" id="facePreview" alt="Detected face" />
+            <button class="btn-secondary" id="btnClearFace" onclick="clearDetectedFace()" style="display:none;flex-shrink:0;" title="Remove detected face">Remove</button>
+          </div>
+          <div class="response-preview" id="detectResponse"></div>
+        </div>
+      </div>
+    </aside>

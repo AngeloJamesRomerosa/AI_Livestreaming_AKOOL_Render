@@ -1,0 +1,103 @@
+    <!-- Streaming Connections panel — always visible; Go Live works without a session -->
+    <div class="card obs-panel" id="obsPanel" style="padding:0;overflow:hidden;">
+      <div class="accordion-header" onclick="toggleAccordion('obsPanel')"
+           style="padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
+        <div class="card-title" style="margin:0;">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="flex-shrink:0">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14
+                 M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+          </svg>
+          <span style="background:var(--accent);color:#fff;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.05em;">Streaming Connections</span>
+        </div>
+        <svg class="accordion-chevron" id="obsPanelChevron" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+      <div id="obsPanelBody" style="display:none;padding:0 20px 20px;">
+
+      <!-- Method selector -->
+      <div class="tabs" id="vcamMethodTabs">
+        <div class="tab" data-tab="method-browser" onclick="switchVcamMethod('browser')">Media Source</div>
+        <div class="tab" data-tab="method-popout"  onclick="switchVcamMethod('popout')">Pop Out Window</div>
+        <div class="tab active" data-tab="method-golive" onclick="switchVcamMethod('golive')">Go Live</div>
+      </div>
+
+      <!-- ── Media Source (server MJPEG relay — browser tab can be minimized) ── -->
+      <div id="method-browser" class="vcam-method" style="display:none;">
+        <p class="method-desc">
+          The server streams your AI output as MJPEG — paste the URL into OBS as a
+          <strong>Media Source</strong>. Your browser tab can be minimized and the
+          stream will keep running.
+        </p>
+
+        <label>Media Source URL</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="obsViewerUrl" readonly style="font-size:0.75rem;cursor:text;" />
+          <button class="btn-secondary" onclick="copyObsUrl()" style="flex-shrink:0;white-space:nowrap;">Copy</button>
+        </div>
+
+        <div class="obs-steps" style="margin-top:12px;">
+          <div class="obs-step"><span class="obs-num">1</span>OBS → <strong>+</strong> → <strong>Media Source</strong> → uncheck "Local file"</div>
+          <div class="obs-step"><span class="obs-num">2</span>Paste the URL above into the <strong>Input</strong> field → OK</div>
+          <div class="obs-step"><span class="obs-num">3</span>OBS toolbar → <strong>Start Virtual Camera</strong></div>
+          <div class="obs-step"><span class="obs-num">4</span>In streaming site/app/web → select <strong>OBS Virtual Camera</strong></div>
+        </div>
+      </div>
+
+      <!-- ── Pop Out Window (server MJPEG — no browser chrome interference) ── -->
+      <div id="method-popout" class="vcam-method" style="display:none;">
+        <p class="method-desc">
+          Opens the AI output in a clean standalone window fed directly from the server.
+          OBS captures it via <strong>Window Capture</strong> — browser tab can be minimized.
+        </p>
+
+        <div style="margin-bottom:12px;">
+          <button class="btn-secondary" onclick="popOutViewer()" style="width:100%;">Open Pop Out Window</button>
+        </div>
+
+        <div class="obs-steps">
+          <div class="obs-step"><span class="obs-num">1</span>Click <strong>Open Pop Out Window</strong> above</div>
+          <div class="obs-step"><span class="obs-num">2</span>OBS → <strong>+</strong> → <strong>Window Capture</strong> → select the popup window</div>
+          <div class="obs-step"><span class="obs-num">3</span>Right-click the source → <strong>Filters</strong> → add <strong>Crop/Pad</strong> to trim browser chrome (Top=70)</div>
+          <div class="obs-step"><span class="obs-num">4</span>OBS toolbar → <strong>Start Virtual Camera</strong></div>
+        </div>
+      </div>
+
+      <!-- ── Go Live: server-side RTMP via ffmpeg (no OBS needed) ── -->
+      <div id="method-golive" class="vcam-method">
+        <p class="method-desc">
+          Stream directly to any RTMP platform (YouTube, Twitch, Facebook, etc.)
+          — no OBS needed. The server encodes your video + mic audio and pushes
+          it straight to your streaming URL.
+        </p>
+
+        <label>RTMP URL</label>
+        <input type="text" id="rtmpUrl" placeholder="rtmp://live.your-platform.com/live" />
+
+        <label>Stream Key</label>
+        <input type="password" id="rtmpKey" placeholder="••••••••••••••••" />
+        <p class="hint">Your stream key is never stored — it is used only for this session.</p>
+
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;">
+          <button class="btn-primary" id="rtmpBtn" onclick="startRtmp()" style="margin-top:0;flex:1;">
+            Go Live
+          </button>
+          <div class="status-row" style="margin:0;flex-shrink:0;">
+            <div class="dot" id="rtmpDot"></div>
+            <span id="rtmpStatus" style="font-size:0.75rem;">Not streaming</span>
+          </div>
+        </div>
+
+        <div class="obs-steps" style="margin-top:14px;">
+          <div class="obs-step"><span class="obs-num">1</span>Copy your RTMP URL + stream key from YouTube/Twitch/Facebook Studio</div>
+          <div class="obs-step"><span class="obs-num">2</span>Paste them above and click <strong>Go Live</strong></div>
+          <div class="obs-step"><span class="obs-num">3</span>Allow microphone access when prompted — audio is captured automatically</div>
+          <div class="obs-step"><span class="obs-num">4</span>Click <strong>Stop Streaming</strong> when done</div>
+        </div>
+
+      </div>
+
+
+      </div><!-- /obsPanelBody -->
+    </div>

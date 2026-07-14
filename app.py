@@ -29,6 +29,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 
 from routes.auth           import router as auth_router
 from routes.faces          import router as faces_router
@@ -108,6 +110,12 @@ class _RateLimitMiddleware(BaseHTTPMiddleware):
 
 app = FastAPI(title="AKOOL Live Faceswap Demo")
 app.add_middleware(_RateLimitMiddleware)
+
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 # Register route groups — each module owns a distinct set of API paths
 app.include_router(auth_router,             tags=["Authentication"])   # POST /api/getToken
