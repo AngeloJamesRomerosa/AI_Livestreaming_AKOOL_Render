@@ -135,7 +135,16 @@ async function _sendObsFrame() {
   _obsSending   = true;
   _obsSendingAt = Date.now();
   try {
-    await bgApplyToObsFrame(video, _obsCanvas, _obsCtx);
+    // When streaming from the preview camera, read from bgPreviewCanvas directly —
+    // the preview RAF loop already composites BG there. Calling bgApplyToObsFrame
+    // would conflict with the preview loop over the shared _segProcessing flag.
+    if (typeof _camPreviewVideoEl !== 'undefined' && video === _camPreviewVideoEl) {
+      const previewCanvas = document.getElementById('bgPreviewCanvas');
+      const src = previewCanvas || video;
+      _obsCtx.drawImage(src, 0, 0, _obsCanvas.width, _obsCanvas.height);
+    } else {
+      await bgApplyToObsFrame(video, _obsCanvas, _obsCtx);
+    }
     await new Promise(resolve => {
       _obsCanvas.toBlob(blob => {
         if (blob && _obsWs?.readyState === WebSocket.OPEN) {
