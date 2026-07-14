@@ -142,6 +142,16 @@ async function _sendObsFrame() {
   const video = _getStreamVideoSource();
   if (!video) return;
 
+  // Auto-resize canvas if the video source dimensions changed (e.g. switching from
+  // preview camera to faceswap output). Mismatched dimensions cause stretch/zoom artefacts.
+  // Also reset the BG temporal smoother so the old session's mask doesn't bleed in.
+  const vw = video.videoWidth, vh = video.videoHeight;
+  if (vw && vh && (_obsCanvas.width !== vw || _obsCanvas.height !== vh)) {
+    _obsCanvas.width  = vw;
+    _obsCanvas.height = vh;
+    if (typeof bgReset === 'function') bgReset();
+  }
+
   _obsSending   = true;
   _obsSendingAt = Date.now();
   try {
