@@ -24,7 +24,7 @@ async function _startCameraFallback() {
   const ctx = _camFbCanvas.getContext('2d');
 
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  _camFbWs = new WebSocket(`${proto}://${location.host}/ws/stream-out?sid=${session._id}`);
+  _camFbWs = new WebSocket(`${proto}://${location.host}/ws/stream-out?sid=${session?._id || '__preview__'}`);
 
   _camFbWs.onopen = () => {
     _camFbSending = false;
